@@ -40,3 +40,14 @@ test:
 		-L../../libft -L$(MLX_DIR) -lft $(MLX_LIBS) -lm \
 		-o ../../tests/output_test
 	../../tests/output_test ../../scenes/valid/example.rt
+
+# 이미지 버퍼 캐싱(render_all) vs mlx_pixel_put 매 픽셀 호출 속도 비교 데모
+perf:
+	make -C ../../libft
+	make -C $(MLX_DIR)
+	$(CC) $(CFLAGS) $(INCLUDE) $(SRCS) ../error.c \
+		../parsing/*.c ../../tests/render_pixel_stub.c \
+		../../tests/perf_test.c \
+		-L../../libft -L$(MLX_DIR) -lft $(MLX_LIBS) -lm \
+		-o ../../tests/perf_test
+	../../tests/perf_test ../../scenes/valid/example.rt
