@@ -137,4 +137,14 @@ void	ft_sys_error(const char *context);
 int		parse_scene(const char *path, t_scene *scene);
 void	free_scene(t_scene *scene);
 
+/* ---------- 렌더링 인터페이스 (형태 계산 + 색상 결정, akkim 구현 예정) ----------
+ * 입력/mlx/출력(나)과 형태+색상 계산(akkim) 사이의 유일한 경계.
+ * width/height는 출력 쪽이 만든 윈도우/이미지 크기를 그대로 넘겨줌 -
+ * 렌더러는 이 값과 scene->camera로 픽셀 (x,y)에 대한 광선을 직접 생성.
+ * 반환값은 t_color(= t_vec3, x/y/z가 각각 r/g/b, 0.0~1.0 정규화) -
+ * 출력 쪽에서 0~255 정수로 변환 후 mlx 픽셀 포맷으로 패킹.
+ */
+
+t_color	render_pixel(t_scene *scene, int x, int y, int width, int height);
+
 #endif
