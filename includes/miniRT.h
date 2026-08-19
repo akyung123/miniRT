@@ -1,6 +1,11 @@
 #ifndef MINIRT_H
 # define MINIRT_H
 
+/* ---------- 이미지 해상도 (입력/렌더링 공용) ---------- */
+
+# define WIN_WIDTH 800
+# define WIN_HEIGHT 600
+
 /* ---------- 3D 데이터 / 색상 ---------- */
 
 typedef struct s_vec3
@@ -95,22 +100,26 @@ typedef struct s_parse_flags
 	int	has_light;
 }	t_parse_flags;
 
-/* ---------- 렌더러 쪽 구조체 ----------
- * t_mlx는 렌더러가 필요에 맞게 확장/재정의할 placeholder.
- * t_ray, t_hit, t_image 등은 아직 미정 (렌더러 담당).
+/* ---------- 출력(mlx) 구조체 ----------
+ * t_ray, t_hit 등 형태/색상 계산 내부 타입은 여기 안 넣음 (akkim 구현 내부에서만 사용).
  */
 
 typedef struct s_mlx
 {
 	void	*mlx_ptr;
 	void	*win_ptr;
+	void	*img_ptr;
+	char	*addr;
+	int		bpp;
+	int		size_line;
+	int		endian;
 }	t_mlx;
 
 /* ---------- 전체 관리 구조체 ---------- */
 
 typedef struct s_minirt
 {
-	t_mlx	mlx;	// 렌더러가 알아서
+	t_mlx	mlx;	// 입력/mlx/출력(나) 담당
 	t_scene	scene;	// 파서 -> 렌더러
 }	t_minirt;
 

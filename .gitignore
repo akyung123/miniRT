@@ -1,8 +1,11 @@
 # 빌드 산출물
 *.o
 *.a
+*.dylib
+*.dSYM/
 miniRT
 tests/parse_test
+tests/output_test
 
 # minilibx 압축 파일 / subject PDF (리포에 안 올림)
 minilibx-linux.tar

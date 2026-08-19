@@ -1,5 +1,7 @@
 #include <stdlib.h>
+#include "mlx.h"
 #include "miniRT.h"
+#include "output.h"
 
 static int	has_rt_extension(const char *path)
 {
@@ -37,11 +39,15 @@ int	main(int argc, char **argv)
 		return (EXIT_FAILURE);
 	if (!parse_scene(argv[1], &minirt.scene))
 		return (EXIT_FAILURE);
-	/* TODO(렌더러): mlx 초기화 및 render loop 연결
-	 * init_mlx(&minirt.mlx);
-	 * render(&minirt);
-	 * mlx_loop(minirt.mlx.mlx_ptr);
-	 */
-	free_scene(&minirt.scene);
+	if (!init_mlx(&minirt))
+	{
+		free_scene(&minirt.scene);
+		return (EXIT_FAILURE);
+	}
+	render_all(&minirt);
+	mlx_hook(minirt.mlx.win_ptr, 17, 0, close_hook, &minirt);
+	mlx_key_hook(minirt.mlx.win_ptr, key_hook, &minirt);
+	mlx_expose_hook(minirt.mlx.win_ptr, expose_hook, &minirt);
+	mlx_loop(minirt.mlx.mlx_ptr);
 	return (EXIT_SUCCESS);
 }
