@@ -7,11 +7,12 @@ miniRT
 tests/parse_test
 tests/output_test
 
-# minilibx 압축 파일 / subject PDF (리포에 안 올림)
+# minilibx 압축 파일 / subject PDF / 평가지 등 참고자료 (리포에 안 올림)
 minilibx-linux.tar
 minilibx_macos_opengl.tar
 minilibx_macos_metal.tar
 miniRT.pdf
+references/
 
 # macOS
 .DS_Store
