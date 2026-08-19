@@ -40,7 +40,7 @@ int	parse_vec3(const char *str, t_vec3 *out)
 	char	**parts;
 	int		ok;
 
-	parts = split_char(str, ',');
+	parts = ft_split(str, ',');
 	if (!parts || count_tokens(parts) != 3)
 		return (free_tokens(parts), 0);
 	out->x = str_to_double(parts[0], &ok);
@@ -59,7 +59,7 @@ int	parse_color(const char *str, t_color *out)
 	double	rgb[3];
 	int		i;
 
-	parts = split_char(str, ',');
+	parts = ft_split(str, ',');
 	if (!parts || count_tokens(parts) != 3)
 		return (free_tokens(parts), 0);
 	i = 0;

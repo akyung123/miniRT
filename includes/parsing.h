@@ -2,14 +2,13 @@
 # define PARSING_H
 
 # include "miniRT.h"
+# include "libft.h"
+# include "get_next_line.h"
 
-/* ---------- 파일 읽기 / 문자열 유틸 (libft 없이 자체 구현) ---------- */
+/* ---------- 문자열 유틸 (libft에 없는 것만 자체 구현) ---------- */
 
-char	*read_file(const char *path);
-char	**split_char(const char *str, char delim);
 void	free_tokens(char **tokens);
 int		count_tokens(char **tokens);
-int		str_eq(const char *a, const char *b);
 
 /* ---------- 숫자 / 벡터 / 색상 파싱 ---------- */
 

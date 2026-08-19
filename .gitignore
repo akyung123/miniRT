@@ -2,6 +2,7 @@
 *.o
 *.a
 miniRT
+tests/parse_test
 
 # minilibx 압축 파일 / subject PDF (리포에 안 올림)
 minilibx-linux.tar

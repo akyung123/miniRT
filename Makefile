@@ -1,9 +1,9 @@
 NAME = miniRT
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -g
-INCLUDE = -I./include -I$(MLX_DIR) -I./libft
+INCLUDE = -I./includes -I$(MLX_DIR) -I./libft
 
-SRCS = $(wildcard src/*.c)
+SRCS = $(wildcard srcs/*.c srcs/parsing/*.c)
 OBJS = $(SRCS:.c=.o)
 
 LIBFT_DIR = ./libft
