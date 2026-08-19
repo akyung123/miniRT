@@ -12,6 +12,19 @@ typedef struct s_vec3
 
 typedef t_vec3	t_color;
 
+/* ---------- 벡터 연산 유틸 (파싱/렌더러 공용, mandatory에 필요한 것만) ---------- */
+
+t_vec3	vec3_add(t_vec3 a, t_vec3 b);
+t_vec3	vec3_sub(t_vec3 a, t_vec3 b);
+t_vec3	vec3_scale(t_vec3 v, double t);
+t_vec3	vec3_negate(t_vec3 v);
+t_vec3	vec3_mul(t_vec3 a, t_vec3 b);
+double	vec3_dot(t_vec3 a, t_vec3 b);
+t_vec3	vec3_cross(t_vec3 a, t_vec3 b);
+double	vec3_length(t_vec3 v);
+t_vec3	vec3_normalize(t_vec3 v);
+t_vec3	vec3_clamp(t_vec3 v, double min, double max);
+
 /* ---------- 씬 요소 (파서가 채움) ---------- */
 
 typedef struct s_ambient
@@ -123,5 +136,21 @@ void	ft_sys_error(const char *context);
 
 int		parse_scene(const char *path, t_scene *scene);
 void	free_scene(t_scene *scene);
+
+/* ---------- 이미지 해상도 (입력/렌더링 공용) ---------- */
+
+# define WIN_WIDTH 800
+# define WIN_HEIGHT 600
+
+/* ---------- 렌더링 인터페이스 (형태 계산 + 색상 결정, akkim 구현 예정) ----------
+ * 입력/mlx/출력(나)과 형태+색상 계산(akkim) 사이의 유일한 경계.
+ * 렌더러는 scene->camera와 위 WIN_WIDTH/WIN_HEIGHT로 픽셀 (x,y)에 대한
+ * 광선을 직접 생성 (norm 함수당 인자 4개 제한 때문에 width/height는
+ * 매개변수로 안 받고 매크로로 뺌).
+ * 반환값은 t_color(= t_vec3, x/y/z가 각각 r/g/b, 0.0~1.0 정규화) -
+ * 출력 쪽에서 0~255 정수로 변환 후 mlx 픽셀 포맷으로 패킹.
+ */
+
+t_color	render_pixel(t_scene *scene, int x, int y);
 
 #endif
