@@ -66,8 +66,11 @@ int	parse_color(const char *str, t_color *out)
 	ok = 1;
 	while (ok && i < 3)
 	{
-		rgb[i] = str_to_double(parts[i], &ok);
-		if (rgb[i] < 0.0 || rgb[i] > 255.0)
+		if (ft_strchr(parts[i], '.'))
+			ok = 0;
+		if (ok)
+			rgb[i] = str_to_double(parts[i], &ok);
+		if (ok && (rgb[i] < 0.0 || rgb[i] > 255.0))
 			ok = 0;
 		i++;
 	}
