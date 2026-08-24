@@ -1,82 +1,54 @@
 #include <math.h>
 #include "parsing.h"
 
-double	str_to_double(const char *str, int *ok)
-{
-	double	sign;
-	double	result;
-	double	frac;
-
-	*ok = 1;
-	sign = 1.0;
-	if (*str == '-' || *str == '+')
-	{
-		if (*str == '-')
-			sign = -1.0;
-		str++;
-	}
-	if (!(*str >= '0' && *str <= '9') && *str != '.')
-		*ok = 0;
-	result = 0.0;
-	while (*str >= '0' && *str <= '9')
-		result = result * 10.0 + (*str++ - '0');
-	if (*str == '.')
-	{
-		frac = 0.1;
-		str++;
-		while (*str >= '0' && *str <= '9')
-		{
-			result += (*str++ - '0') * frac;
-			frac *= 0.1;
-		}
-	}
-	if (*str != '\0')
-		*ok = 0;
-	return (sign * result);
-}
-
 int	parse_vec3(const char *str, t_vec3 *out)
 {
-	char	**parts;
+	char	**fields;
 	int		ok;
 
-	parts = ft_split(str, ',');
-	if (!parts || count_tokens(parts) != 3)
-		return (free_tokens(parts), 0);
-	out->x = str_to_double(parts[0], &ok);
+	fields = ft_split(str, ',');
+	if (!fields || count_tokens(fields) != 3)
+		return (free_tokens(fields), 0);
+	out->x = str_to_double(fields[0], &ok);
 	if (ok)
-		out->y = str_to_double(parts[1], &ok);
+		out->y = str_to_double(fields[1], &ok);
 	if (ok)
-		out->z = str_to_double(parts[2], &ok);
-	free_tokens(parts);
+		out->z = str_to_double(fields[2], &ok);
+	free_tokens(fields);
+	return (ok);
+}
+
+static int	parse_rgb(char **fields, double *rgb)
+{
+	int	i;
+	int	ok;
+
+	i = 0;
+	ok = 1;
+	while (ok && i < 3)
+	{
+		if (ft_strchr(fields[i], '.'))
+			ok = 0;
+		if (ok)
+			rgb[i] = str_to_double(fields[i], &ok);
+		if (ok && (rgb[i] < 0.0 || rgb[i] > 255.0))
+			ok = 0;
+		i++;
+	}
 	return (ok);
 }
 
 int	parse_color(const char *str, t_color *out)
 {
-	char	**parts;
-	int		ok;
+	char	**fields;
 	double	rgb[3];
-	int		i;
 
-	parts = ft_split(str, ',');
-	if (!parts || count_tokens(parts) != 3)
-		return (free_tokens(parts), 0);
-	i = 0;
-	ok = 1;
-	while (ok && i < 3)
-	{
-		if (ft_strchr(parts[i], '.'))
-			ok = 0;
-		if (ok)
-			rgb[i] = str_to_double(parts[i], &ok);
-		if (ok && (rgb[i] < 0.0 || rgb[i] > 255.0))
-			ok = 0;
-		i++;
-	}
-	free_tokens(parts);
-	if (!ok)
-		return (0);
+	fields = ft_split(str, ',');
+	if (!fields || count_tokens(fields) != 3)
+		return (free_tokens(fields), 0);
+	if (!parse_rgb(fields, rgb))
+		return (free_tokens(fields), 0);
+	free_tokens(fields);
 	out->x = rgb[0] / 255.0;
 	out->y = rgb[1] / 255.0;
 	out->z = rgb[2] / 255.0;
