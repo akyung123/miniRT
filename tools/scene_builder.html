@@ -1,0 +1,935 @@
+<!doctype html>
+<title>miniRT Scene Builder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  :root {
+    --bg: #14171c;
+    --panel: #1c2129;
+    --panel-raised: #232935;
+    --border: #2a313c;
+    --text: #e8ebef;
+    --text-dim: #8b93a1;
+    --text-faint: #5b6270;
+    --accent: #e8973a;
+    --accent-dim: #6b5230;
+    --accent-text: #1a1206;
+    --danger: #d4685a;
+    --axis-x: #e05d5d;
+    --axis-y: #5dc46a;
+    --axis-z: #5b8fe0;
+    --radius: 6px;
+    --font-ui: "IBM Plex Sans", -apple-system, "Malgun Gothic", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    margin: 0;
+    height: 100%;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  header {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+  }
+
+  header h1 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: 0.01em;
+  }
+
+  header .sub {
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+
+  main {
+    flex: 1 1 auto;
+    display: flex;
+    min-height: 0;
+  }
+
+  #sidebar {
+    flex: 0 0 300px;
+    overflow-y: auto;
+    border-right: 1px solid var(--border);
+    background: var(--panel);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  #stage {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  #canvas-wrap {
+    flex: 1 1 auto;
+    position: relative;
+    min-height: 0;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  #hint {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    color: var(--text-faint);
+    font-size: 11px;
+    font-family: var(--font-mono);
+    pointer-events: none;
+  }
+
+  section.group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .group-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+  }
+
+  .field-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .field-row label {
+    flex: 0 0 58px;
+    color: var(--text-dim);
+    font-size: 11.5px;
+  }
+
+  .field-row input[type="number"],
+  .field-row input[type="range"] {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .field-row .num-out {
+    flex: 0 0 44px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    text-align: right;
+    color: var(--text-faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  input[type="number"] {
+    background: var(--panel-raised);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 4px 6px;
+    width: 100%;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 2px solid var(--bg);
+  }
+
+  input[type="color"] {
+    width: 28px;
+    height: 24px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .add-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  button {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--panel-raised);
+    color: var(--text);
+    padding: 6px 10px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    border-color: var(--accent-dim);
+  }
+
+  button:focus-visible,
+  input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  button.add {
+    flex: 1 1 0;
+  }
+
+  button.primary {
+    background: var(--accent);
+    color: var(--accent-text);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  button.primary:hover {
+    filter: brightness(1.08);
+  }
+
+  #obj-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .obj-card {
+    background: var(--panel-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .obj-card-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .obj-chip {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .obj-chip.sp {
+    background: #3a2f1c;
+    color: #e8b13a;
+  }
+
+  .obj-chip.pl {
+    background: #1c2f3a;
+    color: #4fb8e8;
+  }
+
+  .obj-chip.cy {
+    background: #2a1c3a;
+    color: #b06fe8;
+  }
+
+  .obj-card-head .rm {
+    margin-left: auto;
+    color: var(--text-faint);
+    background: none;
+    border: none;
+    font-size: 14px;
+    line-height: 1;
+    padding: 2px 4px;
+  }
+
+  .obj-card-head .rm:hover {
+    color: var(--danger);
+  }
+
+  .empty-note {
+    color: var(--text-faint);
+    font-size: 11.5px;
+    font-style: italic;
+  }
+
+  #rt-panel {
+    flex: 0 0 auto;
+    border-top: 1px solid var(--border);
+    background: var(--panel);
+    padding: 10px 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  #rt-panel-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #rt-panel-head .group-title {
+    margin: 0;
+  }
+
+  #rt-status {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+
+  #rt-status.err {
+    color: var(--danger);
+  }
+
+  #rt-panel-head button {
+    margin-left: auto;
+  }
+
+  #rt-output {
+    width: 100%;
+    height: 108px;
+    resize: vertical;
+    background: #0f1216;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.6;
+    padding: 10px 12px;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  ::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--panel-raised);
+    border-radius: 5px;
+    border: 2px solid var(--panel);
+  }
+</style>
+
+<header>
+  <h1>miniRT Scene Builder</h1>
+  <span class="sub">씬을 시각적으로 배치하고 .rt 텍스트로 바로 뽑아내는 도구 · 조명/그림자 계산 없는 근사 프리뷰</span>
+</header>
+
+<main>
+  <div id="sidebar">
+    <section class="group">
+      <div class="group-title">Ambient</div>
+      <div class="field-row">
+        <label>ratio</label>
+        <input id="a-ratio" type="range" min="0" max="1" step="0.01" value="0.2" />
+        <span class="num-out" id="a-ratio-out">0.20</span>
+      </div>
+      <div class="field-row">
+        <label>color</label>
+        <input id="a-color" type="color" value="#ffffff" />
+      </div>
+    </section>
+
+    <section class="group">
+      <div class="group-title">Camera</div>
+      <div class="field-row"><label>pos x</label><input id="c-px" type="number" step="1" value="0" /></div>
+      <div class="field-row"><label>pos y</label><input id="c-py" type="number" step="1" value="8" /></div>
+      <div class="field-row"><label>pos z</label><input id="c-pz" type="number" step="1" value="-60" /></div>
+      <div class="field-row">
+        <label>yaw</label>
+        <input id="c-yaw" type="range" min="-180" max="180" step="1" value="0" />
+        <span class="num-out" id="c-yaw-out">0°</span>
+      </div>
+      <div class="field-row">
+        <label>pitch</label>
+        <input id="c-pitch" type="range" min="-89" max="89" step="1" value="0" />
+        <span class="num-out" id="c-pitch-out">0°</span>
+      </div>
+      <div class="field-row">
+        <label>fov</label>
+        <input id="c-fov" type="range" min="1" max="180" step="1" value="70" />
+        <span class="num-out" id="c-fov-out">70°</span>
+      </div>
+    </section>
+
+    <section class="group">
+      <div class="group-title">Light</div>
+      <div class="field-row"><label>pos x</label><input id="l-px" type="number" step="1" value="25" /></div>
+      <div class="field-row"><label>pos y</label><input id="l-py" type="number" step="1" value="35" /></div>
+      <div class="field-row"><label>pos z</label><input id="l-pz" type="number" step="1" value="-25" /></div>
+      <div class="field-row">
+        <label>bright</label>
+        <input id="l-bright" type="range" min="0" max="1" step="0.01" value="0.6" />
+        <span class="num-out" id="l-bright-out">0.60</span>
+      </div>
+      <div class="field-row">
+        <label>color</label>
+        <input id="l-color" type="color" value="#ffffff" />
+      </div>
+    </section>
+
+    <section class="group">
+      <div class="group-title">Objects</div>
+      <div class="add-row">
+        <button class="add" data-add="sp">+ Sphere</button>
+        <button class="add" data-add="pl">+ Plane</button>
+        <button class="add" data-add="cy">+ Cylinder</button>
+      </div>
+      <div id="obj-list"></div>
+    </section>
+  </div>
+
+  <div id="stage">
+    <div id="canvas-wrap">
+      <canvas id="view"></canvas>
+      <div id="hint">카메라 시점 와이어프레임 미리보기 (음영 없음)</div>
+    </div>
+    <div id="rt-panel">
+      <div id="rt-panel-head">
+        <div class="group-title">.rt Output</div>
+        <span id="rt-status"></span>
+        <button class="primary" id="copy-btn">복사</button>
+      </div>
+      <textarea id="rt-output" readonly spellcheck="false"></textarea>
+    </div>
+  </div>
+</main>
+
+<script>
+  "use strict";
+
+  /* ---------- state ---------- */
+
+  const state = {
+    ambient: { ratio: 0.2, color: "#ffffff" },
+    camera: { pos: [0, 8, -60], yaw: 0, pitch: 0, fov: 70 },
+    light: { pos: [25, 35, -25], brightness: 0.6, color: "#ffffff" },
+    objects: [
+      { id: 1, type: "sp", center: [0, 0, 0], diameter: 20, color: "#ff3b3b" },
+      { id: 2, type: "pl", point: [0, -12, 0], normal: [0, 1, 0], color: "#c9cfd8" },
+    ],
+  };
+  let nextId = 3;
+
+  /* ---------- vector helpers ---------- */
+
+  const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  const add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+  const scl = (a, s) => [a[0] * s, a[1] * s, a[2] * s];
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const cross = (a, b) => [
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0],
+  ];
+  const len = (a) => Math.sqrt(dot(a, a));
+  const norm = (a) => {
+    const l = len(a) || 1e-9;
+    return scl(a, 1 / l);
+  };
+
+  function cameraDirection(cam) {
+    const yaw = (cam.yaw * Math.PI) / 180;
+    const pitch = (cam.pitch * Math.PI) / 180;
+    return [
+      Math.cos(pitch) * Math.sin(yaw),
+      Math.sin(pitch),
+      Math.cos(pitch) * Math.cos(yaw),
+    ];
+  }
+
+  function planeBasis(n) {
+    let ref = [0, 1, 0];
+    if (Math.abs(dot(n, ref)) > 0.98) ref = [1, 0, 0];
+    const u = norm(cross(ref, n));
+    const v = cross(n, u);
+    return [u, v];
+  }
+
+  /* ---------- camera / projection ---------- */
+
+  function buildView(cam) {
+    const forward = norm(cameraDirection(cam));
+    let worldUp = [0, 1, 0];
+    if (Math.abs(dot(forward, worldUp)) > 0.999) worldUp = [0, 0, 1];
+    const right = norm(cross(worldUp, forward));
+    const up = cross(forward, right);
+    return { pos: cam.pos, forward, right, up };
+  }
+
+  function project(view, p, w, h, focal) {
+    const rel = sub(p, view.pos);
+    const vz = dot(rel, view.forward);
+    if (vz < 0.05) return null;
+    const vx = dot(rel, view.right);
+    const vy = dot(rel, view.up);
+    return [w / 2 + (vx / vz) * focal, h / 2 - (vy / vz) * focal, vz];
+  }
+
+  /* ---------- color helpers ---------- */
+
+  function hexToRgb(hex) {
+    const n = parseInt(hex.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+
+  const fmt = (n) => {
+    const r = Math.round(n * 1000) / 1000;
+    return Object.is(r, -0) ? "0" : String(r);
+  };
+
+  /* ---------- .rt generation ---------- */
+
+  function generateRt() {
+    const lines = [];
+    const a = state.ambient;
+    lines.push(`A ${fmt(a.ratio)} ${hexToRgb(a.color).join(",")}`);
+
+    const cam = state.camera;
+    const dir = norm(cameraDirection(cam));
+    lines.push(
+      `C ${cam.pos.map(fmt).join(",")} ${dir.map(fmt).join(",")} ${fmt(cam.fov)}`
+    );
+
+    const l = state.light;
+    lines.push(
+      `L ${l.pos.map(fmt).join(",")} ${fmt(l.brightness)} ${hexToRgb(l.color).join(",")}`
+    );
+
+    lines.push("");
+    for (const o of state.objects) {
+      const rgb = hexToRgb(o.color).join(",");
+      if (o.type === "sp") {
+        lines.push(`sp ${o.center.map(fmt).join(",")} ${fmt(o.diameter)} ${rgb}`);
+      } else if (o.type === "pl") {
+        const n = norm(o.normal);
+        lines.push(`pl ${o.point.map(fmt).join(",")} ${n.map(fmt).join(",")} ${rgb}`);
+      } else if (o.type === "cy") {
+        const n = norm(o.axis);
+        lines.push(
+          `cy ${o.center.map(fmt).join(",")} ${n.map(fmt).join(",")} ${fmt(o.diameter)} ${fmt(o.height)} ${rgb}`
+        );
+      }
+    }
+    return lines.join("\n") + "\n";
+  }
+
+  function validate() {
+    const problems = [];
+    if (state.camera.fov <= 0 || state.camera.fov > 180) problems.push("fov는 0~180 사이여야 함");
+    for (const o of state.objects) {
+      if ((o.type === "sp" || o.type === "cy") && o.diameter <= 0)
+        problems.push(`${o.type} #${o.id}: diameter는 0보다 커야 함`);
+      if (o.type === "cy" && o.height <= 0) problems.push(`cy #${o.id}: height는 0보다 커야 함`);
+    }
+    return problems;
+  }
+
+  /* ---------- canvas rendering ---------- */
+
+  const canvas = document.getElementById("view");
+  const ctx = canvas.getContext("2d");
+
+  function resizeCanvas() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    render();
+  }
+
+  function drawSegment(view, p1, p2, w, h, focal, color, lineWidth) {
+    const s1 = project(view, p1, w, h, focal);
+    const s2 = project(view, p2, w, h, focal);
+    if (!s1 || !s2) return;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth || 1;
+    ctx.beginPath();
+    ctx.moveTo(s1[0], s1[1]);
+    ctx.lineTo(s2[0], s2[1]);
+    ctx.stroke();
+  }
+
+  function circlePoints(center, u, v, r, n) {
+    const pts = [];
+    for (let i = 0; i <= n; i++) {
+      const t = (i / n) * Math.PI * 2;
+      pts.push(add(center, add(scl(u, Math.cos(t) * r), scl(v, Math.sin(t) * r))));
+    }
+    return pts;
+  }
+
+  function drawPolyline(view, pts, w, h, focal, color, lineWidth) {
+    for (let i = 0; i < pts.length - 1; i++) drawSegment(view, pts[i], pts[i + 1], w, h, focal, color, lineWidth);
+  }
+
+  function drawSphere(view, o, w, h, focal) {
+    const r = o.diameter / 2;
+    const c = o.center;
+    const rings = [
+      [[1, 0, 0], [0, 1, 0]],
+      [[1, 0, 0], [0, 0, 1]],
+      [[0, 1, 0], [0, 0, 1]],
+    ];
+    for (const [u, v] of rings) drawPolyline(view, circlePoints(c, u, v, r, 40), w, h, focal, o.color, 1.4);
+  }
+
+  function drawPlane(view, o, w, h, focal) {
+    const n = norm(o.normal);
+    const [u, v] = planeBasis(n);
+    const ext = 24;
+    const step = 6;
+    for (let i = -ext; i <= ext; i += step) {
+      drawSegment(view, add(o.point, add(scl(u, i), scl(v, -ext))), add(o.point, add(scl(u, i), scl(v, ext))), w, h, focal, o.color, 1);
+      drawSegment(view, add(o.point, add(scl(v, i), scl(u, -ext))), add(o.point, add(scl(v, i), scl(u, ext))), w, h, focal, o.color, 1);
+    }
+  }
+
+  function drawCylinder(view, o, w, h, focal) {
+    const a = norm(o.axis);
+    const r = o.diameter / 2;
+    const half = o.height / 2;
+    const top = add(o.center, scl(a, half));
+    const bot = add(o.center, scl(a, -half));
+    const [u, v] = planeBasis(a);
+    const topPts = circlePoints(top, u, v, r, 32);
+    const botPts = circlePoints(bot, u, v, r, 32);
+    drawPolyline(view, topPts, w, h, focal, o.color, 1.4);
+    drawPolyline(view, botPts, w, h, focal, o.color, 1.4);
+    for (let i = 0; i < 32; i += 8) drawSegment(view, topPts[i], botPts[i], w, h, focal, o.color, 1.4);
+  }
+
+  function drawAxes(view, w, h, focal) {
+    const L = 30;
+    drawSegment(view, [0, 0, 0], [L, 0, 0], w, h, focal, "#e05d5d", 1.6);
+    drawSegment(view, [0, 0, 0], [0, L, 0], w, h, focal, "#5dc46a", 1.6);
+    drawSegment(view, [0, 0, 0], [0, 0, L], w, h, focal, "#5b8fe0", 1.6);
+    ctx.font = '11px "IBM Plex Mono", ui-monospace, monospace';
+    const label = (p, text, color) => {
+      const s = project(view, p, w, h, focal);
+      if (!s) return;
+      ctx.fillStyle = color;
+      ctx.fillText(text, s[0] + 4, s[1] + 4);
+    };
+    label([L, 0, 0], "X", "#e05d5d");
+    label([0, L, 0], "Y", "#5dc46a");
+    label([0, 0, L], "Z", "#5b8fe0");
+  }
+
+  function drawLight(view, w, h, focal) {
+    const p = state.light.pos;
+    const s = project(view, p, w, h, focal);
+    if (!s) return;
+    ctx.fillStyle = "#e8973a";
+    ctx.beginPath();
+    ctx.arc(s[0], s[1], 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#e8973a55";
+    for (const [dx, dy] of [[-8, 0], [8, 0], [0, -8], [0, 8]]) {
+      ctx.beginPath();
+      ctx.moveTo(s[0], s[1]);
+      ctx.lineTo(s[0] + dx, s[1] + dy);
+      ctx.stroke();
+    }
+  }
+
+  function render() {
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    ctx.fillStyle = "#0f1216";
+    ctx.fillRect(0, 0, w, h);
+    if (w === 0 || h === 0) return;
+
+    const view = buildView(state.camera);
+    const focal = h / 2 / Math.tan((state.camera.fov * Math.PI) / 180 / 2);
+
+    ctx.strokeStyle = "#20262f";
+    ctx.strokeRect(0.5, 0.5, w - 1, h - 1);
+
+    drawAxes(view, w, h, focal);
+    for (const o of state.objects) {
+      if (o.type === "sp") drawSphere(view, o, w, h, focal);
+      else if (o.type === "pl") drawPlane(view, o, w, h, focal);
+      else if (o.type === "cy") drawCylinder(view, o, w, h, focal);
+    }
+    drawLight(view, w, h, focal);
+  }
+
+  /* ---------- output panel refresh ---------- */
+
+  function refreshOutput() {
+    const problems = validate();
+    const status = document.getElementById("rt-status");
+    if (problems.length) {
+      status.textContent = "⚠ " + problems.join(" · ");
+      status.className = "err";
+    } else {
+      status.textContent = "유효한 .rt 형식";
+      status.className = "";
+    }
+    document.getElementById("rt-output").value = generateRt();
+  }
+
+  function refreshAll() {
+    render();
+    refreshOutput();
+  }
+
+  /* ---------- object list UI ---------- */
+
+  function objLabel(o) {
+    if (o.type === "sp") return "Sphere";
+    if (o.type === "pl") return "Plane";
+    return "Cylinder";
+  }
+
+  function numField(labelText, value, onInput) {
+    const row = document.createElement("div");
+    row.className = "field-row";
+    const label = document.createElement("label");
+    label.textContent = labelText;
+    const input = document.createElement("input");
+    input.type = "number";
+    input.step = "1";
+    input.value = value;
+    input.addEventListener("input", () => {
+      onInput(parseFloat(input.value) || 0);
+      refreshAll();
+    });
+    row.append(label, input);
+    return row;
+  }
+
+  function vecFields(labelPrefix, vec, onChange) {
+    const wrap = document.createElement("div");
+    wrap.style.display = "flex";
+    wrap.style.gap = "4px";
+    ["x", "y", "z"].forEach((axis, i) => {
+      const input = document.createElement("input");
+      input.type = "number";
+      input.step = "1";
+      input.value = vec[i];
+      input.title = labelPrefix + " " + axis;
+      input.addEventListener("input", () => {
+        vec[i] = parseFloat(input.value) || 0;
+        onChange();
+        refreshAll();
+      });
+      wrap.appendChild(input);
+    });
+    return wrap;
+  }
+
+  function colorField(value, onChange) {
+    const input = document.createElement("input");
+    input.type = "color";
+    input.value = value;
+    input.addEventListener("input", () => {
+      onChange(input.value);
+      refreshAll();
+    });
+    return input;
+  }
+
+  function renderObjList() {
+    const list = document.getElementById("obj-list");
+    list.innerHTML = "";
+    if (state.objects.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "empty-note";
+      empty.textContent = "아직 추가된 도형이 없어요.";
+      list.appendChild(empty);
+      return;
+    }
+    for (const o of state.objects) {
+      const card = document.createElement("div");
+      card.className = "obj-card";
+
+      const head = document.createElement("div");
+      head.className = "obj-card-head";
+      const chip = document.createElement("span");
+      chip.className = "obj-chip " + o.type;
+      chip.textContent = objLabel(o);
+      const rm = document.createElement("button");
+      rm.className = "rm";
+      rm.textContent = "✕";
+      rm.title = "삭제";
+      rm.addEventListener("click", () => {
+        state.objects = state.objects.filter((x) => x.id !== o.id);
+        renderObjList();
+        refreshAll();
+      });
+      head.append(chip, rm);
+      card.appendChild(head);
+
+      const posRow = document.createElement("div");
+      posRow.className = "field-row";
+      const posLabel = document.createElement("label");
+      posLabel.textContent = o.type === "pl" ? "point" : "center";
+      posRow.append(posLabel, vecFields("pos", o.type === "pl" ? o.point : o.center, () => {}));
+      card.appendChild(posRow);
+
+      if (o.type === "sp") {
+        card.appendChild(numField("diameter", o.diameter, (v) => (o.diameter = v)));
+      } else if (o.type === "pl") {
+        const nRow = document.createElement("div");
+        nRow.className = "field-row";
+        const nLabel = document.createElement("label");
+        nLabel.textContent = "normal";
+        nRow.append(nLabel, vecFields("normal", o.normal, () => {}));
+        card.appendChild(nRow);
+      } else if (o.type === "cy") {
+        const aRow = document.createElement("div");
+        aRow.className = "field-row";
+        const aLabel = document.createElement("label");
+        aLabel.textContent = "axis";
+        aRow.append(aLabel, vecFields("axis", o.axis, () => {}));
+        card.appendChild(aRow);
+        card.appendChild(numField("diameter", o.diameter, (v) => (o.diameter = v)));
+        card.appendChild(numField("height", o.height, (v) => (o.height = v)));
+      }
+
+      const colorRow = document.createElement("div");
+      colorRow.className = "field-row";
+      const colorLabel = document.createElement("label");
+      colorLabel.textContent = "color";
+      colorRow.append(colorLabel, colorField(o.color, (v) => (o.color = v)));
+      card.appendChild(colorRow);
+
+      list.appendChild(card);
+    }
+  }
+
+  /* ---------- wiring: ambient / camera / light ---------- */
+
+  function bindRange(id, outId, onInput, fmtFn) {
+    const el = document.getElementById(id);
+    const out = document.getElementById(outId);
+    el.addEventListener("input", () => {
+      const v = parseFloat(el.value);
+      if (out) out.textContent = fmtFn(v);
+      onInput(v);
+      refreshAll();
+    });
+  }
+
+  function bindNumber(id, onInput) {
+    document.getElementById(id).addEventListener("input", (e) => {
+      onInput(parseFloat(e.target.value) || 0);
+      refreshAll();
+    });
+  }
+
+  bindRange("a-ratio", "a-ratio-out", (v) => (state.ambient.ratio = v), (v) => v.toFixed(2));
+  document.getElementById("a-color").addEventListener("input", (e) => {
+    state.ambient.color = e.target.value;
+    refreshAll();
+  });
+
+  bindNumber("c-px", (v) => (state.camera.pos[0] = v));
+  bindNumber("c-py", (v) => (state.camera.pos[1] = v));
+  bindNumber("c-pz", (v) => (state.camera.pos[2] = v));
+  bindRange("c-yaw", "c-yaw-out", (v) => (state.camera.yaw = v), (v) => Math.round(v) + "°");
+  bindRange("c-pitch", "c-pitch-out", (v) => (state.camera.pitch = v), (v) => Math.round(v) + "°");
+  bindRange("c-fov", "c-fov-out", (v) => (state.camera.fov = v), (v) => Math.round(v) + "°");
+
+  bindNumber("l-px", (v) => (state.light.pos[0] = v));
+  bindNumber("l-py", (v) => (state.light.pos[1] = v));
+  bindNumber("l-pz", (v) => (state.light.pos[2] = v));
+  bindRange("l-bright", "l-bright-out", (v) => (state.light.brightness = v), (v) => v.toFixed(2));
+  document.getElementById("l-color").addEventListener("input", (e) => {
+    state.light.color = e.target.value;
+    refreshAll();
+  });
+
+  document.querySelectorAll("[data-add]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const type = btn.dataset.add;
+      const base = { id: nextId++, color: "#5fb0e8" };
+      let o;
+      if (type === "sp") o = { ...base, type, center: [0, 0, 20], diameter: 10, color: "#e85f5f" };
+      else if (type === "pl") o = { ...base, type, point: [0, 0, -10], normal: [0, 1, 0], color: "#8fe85f" };
+      else o = { ...base, type, center: [0, 0, 20], axis: [0, 1, 0], diameter: 8, height: 16, color: "#a05fe8" };
+      state.objects.push(o);
+      renderObjList();
+      refreshAll();
+    });
+  });
+
+  document.getElementById("copy-btn").addEventListener("click", async () => {
+    const ta = document.getElementById("rt-output");
+    ta.select();
+    try {
+      await navigator.clipboard.writeText(ta.value);
+      const btn = document.getElementById("copy-btn");
+      const original = btn.textContent;
+      btn.textContent = "복사됨";
+      setTimeout(() => (btn.textContent = original), 1200);
+    } catch (e) {
+      /* clipboard 권한이 없으면 textarea가 이미 선택된 상태라 手동 복사 가능 */
+    }
+  });
+
+  window.addEventListener("resize", resizeCanvas);
+  renderObjList();
+  resizeCanvas();
+</script>
