@@ -17,3 +17,9 @@ references/
 
 # macOS
 .DS_Store
+
+# 에디터/언어서버 설정 (개인 로컬 환경, 사람마다 다름)
+.vscode/
+.clangd
+.cache/
+compile_commands.json
