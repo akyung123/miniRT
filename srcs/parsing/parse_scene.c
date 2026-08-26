@@ -40,7 +40,7 @@ static void	strip_newline(char *line)
 		line[--len] = '\0';
 }
 
-static int	process_fd(int fd, t_scene *scene, t_parse_flags *flags)
+static int	parse_lines(int fd, t_scene *scene, t_parse_flags *flags)
 {
 	char	*line;
 	int		ok;
@@ -73,7 +73,7 @@ int	parse_scene(const char *path, t_scene *scene)
 	fd = open(path, O_RDONLY);
 	if (fd < 0)
 		return (ft_sys_error("open"), 0);
-	if (!process_fd(fd, scene, &flags))
+	if (!parse_lines(fd, scene, &flags))
 	{
 		close(fd);
 		free_scene(scene);
