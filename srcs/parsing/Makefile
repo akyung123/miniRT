@@ -2,7 +2,13 @@ CC = cc
 CFLAGS = -Wall -Wextra -Werror
 INCLUDE = -I../../includes -I../../libft
 
-SRCS = $(wildcard *.c)
+SRCS = free_scene.c \
+	parse_elements.c \
+	parse_numbers.c \
+	parse_objects.c \
+	parse_scene.c \
+	parse_utils.c \
+	str_to_double.c
 OBJS = $(SRCS:.c=.o)
 
 .PHONY: all clean fclean re test suite
