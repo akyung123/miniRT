@@ -25,7 +25,7 @@ int	parse_camera(char **tokens, t_scene *scene, t_parse_flags *flags)
 		return (0);
 	if (!parse_vec3(tokens[2], &scene->camera.orientation))
 		return (0);
-	if (!valid_direction(&scene->camera.orientation))
+	if (!normalize_direction(&scene->camera.orientation))
 		return (0);
 	scene->camera.fov = str_to_double(tokens[3], &ok);
 	if (!ok || scene->camera.fov < 0.0 || scene->camera.fov > 180.0)

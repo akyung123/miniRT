@@ -55,7 +55,7 @@ int	parse_color(const char *str, t_color *out)
 	return (1);
 }
 
-int	valid_direction(t_vec3 *v)
+int	normalize_direction(t_vec3 *v)
 {
 	double	mag;
 

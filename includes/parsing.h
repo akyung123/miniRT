@@ -15,7 +15,7 @@ int		count_tokens(char **tokens);
 double	str_to_double(const char *str, int *ok);
 int		parse_vec3(const char *str, t_vec3 *out);
 int		parse_color(const char *str, t_color *out);
-int		valid_direction(t_vec3 *v);
+int		normalize_direction(t_vec3 *v);
 
 /* ---------- 라인 디스패치 / 요소별 파서 ---------- */
 
