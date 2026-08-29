@@ -52,7 +52,7 @@ static int	parse_lines(int fd, t_scene *scene, t_parse_flags *flags)
 		strip_newline(line);
 		if (ok && line[0] && !parse_line(line, scene, flags))
 		{
-			ft_error("invalid or duplicated scene line");
+			ft_error("failed to parse scene line");
 			ok = 0;
 		}
 		free(line);
