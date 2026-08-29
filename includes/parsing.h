@@ -2,8 +2,6 @@
 # define PARSING_H
 
 # include "miniRT.h"
-# include "libft.h"
-# include "get_next_line.h"
 
 /* ---------- 문자열 유틸 (libft에 없는 것만 자체 구현) ---------- */
 

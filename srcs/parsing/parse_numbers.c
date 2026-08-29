@@ -1,4 +1,5 @@
 #include <math.h>
+#include "libft.h"
 #include "parsing.h"
 
 int	parse_vec3(const char *str, t_vec3 *out)
