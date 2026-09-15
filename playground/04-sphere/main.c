@@ -49,7 +49,7 @@ int main(int argc, char **argv)
 	if (!init_minirt(&mini))
 		return (0);
 	// 이미지 만들기
-	rander(&mini); 
+	draw(&mini); 
 	// image에 window 위에 넣기
 	mlx_put_image_to_window(mini.mlx->mlx_ptr, mini.mlx->win_ptr, mini.mlx->img_ptr, 0, 0);
 

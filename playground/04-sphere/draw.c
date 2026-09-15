@@ -27,7 +27,7 @@ void    my_mlx_pixel_put(t_mlx *mlx, int x, int y, int color)
     char    *dst;
 
     // 색칠할 점이 이미지 크기 안에 있는지 확인하기
-    if (x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT)
+    if (x >= 0 && x < WIN_WIDTH && y >= 0 && y < WIN_HEIGHT)
     {
         dst = mlx->addr + (y * mlx->size_line + x * (mlx->bpp / 8));
         *(unsigned int *)dst = color;
@@ -70,14 +70,14 @@ void    draw_square(t_mlx *mlx, int x1, int x2, int y1, int y2, int color)
     }
 }
 
-void	draw(t_mini *mini)
+void	draw(t_minirt *mini)
 {
 	(void)mini;
     int color;
 
 	color = create_argb(0, 255, 255, 255);
-    draw_circle(mini->mlx, WIDTH / 2, HEIGHT / 2, 100, color);
+    draw_circle(mini->mlx, WIN_WIDTH / 2, WIN_HEIGHT / 2, 100, color);
     draw_square(mini->mlx, 10, 40, 60, 100, color);
 	// mlx_pixel_put은 창에 직접 점을 찍는다.
-	// my_mlx_pixel_put(mini->mlx, WIDTH / 2, HEIGHT / 2, color);
+	// my_mlx_pixel_put(mini->mlx, WIN_WIDTH / 2, WIN_HEIGHT / 2, color);
 }

@@ -32,7 +32,6 @@ typedef struct s_vec3
     double  z;
 }   t_vec3;
 
-typedef t_vec3	t_color;
 // 추후 교체 및 수정 예정
 typedef struct s_scene	t_scene;
 
@@ -56,6 +55,5 @@ typedef struct s_minirt
 }   t_minirt;
 
 void	draw(t_minirt *mini);
-void    rander(t_minirt *mini);
 
 #endif
