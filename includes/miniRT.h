@@ -1,12 +1,12 @@
 #ifndef MINIRT_H
 # define MINIRT_H
 
-/* ---------- 이미지 해상도 (입력/렌더링 공용) ---------- */
+/* ---------- Image resolution (shared by input and rendering) ---------- */
 
 # define WIN_WIDTH 800
 # define WIN_HEIGHT 600
 
-/* ---------- 3D 데이터 / 색상 ---------- */
+/* ---------- 3D data / color ---------- */
 
 typedef struct s_vec3
 {
@@ -17,7 +17,7 @@ typedef struct s_vec3
 
 typedef t_vec3	t_color;
 
-/* ---------- 씬 요소 (파서가 채움) ---------- */
+/* ---------- Scene elements (filled by the parser) ---------- */
 
 typedef struct s_ambient
 {
@@ -91,7 +91,7 @@ typedef struct s_scene
 	t_object	*objects;
 }	t_scene;
 
-/* ---------- 파서 내부 전용 (입력 검증용, t_scene에는 안 넣음) ---------- */
+/* ---------- Parser-internal (validation, not part of t_scene) ---------- */
 
 typedef struct s_parse_flags
 {
@@ -100,8 +100,9 @@ typedef struct s_parse_flags
 	int	has_light;
 }	t_parse_flags;
 
-/* ---------- 출력(mlx) 구조체 ----------
- * t_ray, t_hit 등 형태/색상 계산 내부 타입은 여기 안 넣음 (akkim 구현 내부에서만 사용).
+/* ---------- Output (mlx) struct ----------
+ * Internal shape/color calculation types (t_ray, t_hit, etc.) are not
+ * declared here; they stay local to the renderer's own implementation.
  */
 
 typedef struct s_mlx
@@ -115,20 +116,20 @@ typedef struct s_mlx
 	int		endian;
 }	t_mlx;
 
-/* ---------- 전체 관리 구조체 ---------- */
+/* ---------- Top-level state ---------- */
 
 typedef struct s_minirt
 {
-	t_mlx	mlx;	// 입력/mlx/출력(나) 담당
-	t_scene	scene;	// 파서 -> 렌더러
+	t_mlx	mlx;
+	t_scene	scene;
 }	t_minirt;
 
-/* ---------- 에러 처리 ---------- */
+/* ---------- Error handling ---------- */
 
 void	ft_error(const char *msg);
 void	ft_sys_error(const char *context);
 
-/* ---------- 파싱 인터페이스 (다음 단계에서 구현 예정) ---------- */
+/* ---------- Parsing interface ---------- */
 
 int		parse_scene(const char *path, t_scene *scene);
 void	free_scene(t_scene *scene);
