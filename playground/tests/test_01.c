@@ -26,10 +26,10 @@ static void	new_image(int pad)
 	free(g_img.addr);
 	memset(&g_img, 0, sizeof g_img);
 	g_img.bpp = 32;
-	g_img.size_line = WIDTH * 4 + pad;
-	g_img.addr = malloc((size_t)g_img.size_line * HEIGHT);
+	g_img.size_line = WIN_WIDTH * 4 + pad;
+	g_img.addr = malloc((size_t)g_img.size_line * WIN_HEIGHT);
 	p = (unsigned int *)g_img.addr;
-	n = (g_img.size_line / 4) * HEIGHT;
+	n = (g_img.size_line / 4) * WIN_HEIGHT;
 	while (n-- > 0)
 		p[n] = CANARY;
 }
@@ -48,10 +48,10 @@ static int	touched(void)
 
 	cnt = 0;
 	y = -1;
-	while (++y < HEIGHT)
+	while (++y < WIN_HEIGHT)
 	{
 		x = -1;
-		while (++x < WIDTH)
+		while (++x < WIN_WIDTH)
 			if (px_at(x, y) != CANARY)
 				cnt++;
 	}

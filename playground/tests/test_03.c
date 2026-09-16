@@ -45,8 +45,8 @@ static int	camera_ops(t_case *c, int at)
 		return (sign_check(r.direction.y, c->tok[at], c->raw), 1);
 	if (cs_is(c->tok[0], "cam_symmetry"))
 	{
-		l = camera_ray(0, HEIGHT / 2);
-		rr = camera_ray(WIDTH - 1, HEIGHT / 2);
+		l = camera_ray(0, WIN_HEIGHT / 2);
+		rr = camera_ray(WIN_WIDTH - 1, WIN_HEIGHT / 2);
 		if (fabs(l.direction.x + rr.direction.x) < 0.01)
 			T_OK(c->raw);
 		else
@@ -55,8 +55,8 @@ static int	camera_ops(t_case *c, int at)
 	}
 	if (cs_is(c->tok[0], "cam_aspect"))
 	{
-		rr = camera_ray(WIDTH - 1, HEIGHT / 2);
-		l = camera_ray(WIDTH / 2, 0);
+		rr = camera_ray(WIN_WIDTH - 1, WIN_HEIGHT / 2);
+		l = camera_ray(WIN_WIDTH / 2, 0);
 		if (fabs(rr.direction.x) > fabs(l.direction.y))
 			T_OK(c->raw);
 		else

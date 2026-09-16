@@ -56,7 +56,7 @@ if (fabs(dot(forward, world_up)) > 1 - 1e-6)
 ```
 theta = fov * M_PI / 180.0
 half_width  = tan(theta / 2)
-half_height = half_width / aspect        /* aspect = WIDTH / HEIGHT */
+half_height = half_width / aspect        /* aspect = WIN_WIDTH / WIN_HEIGHT */
 ```
 
 `tan`이 왜 나오는지는 직각삼각형 하나 그려보면 바로 보입니다. 카메라에서 거리 1 앞에 화면이 있다고 두면, 화면 절반 폭이 `tan(θ/2)`입니다.
@@ -64,8 +64,8 @@ half_height = half_width / aspect        /* aspect = WIDTH / HEIGHT */
 ### 광선 만들기
 
 ```
-u = (2 * (x + 0.5) / WIDTH  - 1) * half_width
-v = (1 - 2 * (y + 0.5) / HEIGHT) * half_height      /* y 뒤집기 */
+u = (2 * (x + 0.5) / WIN_WIDTH  - 1) * half_width
+v = (1 - 2 * (y + 0.5) / WIN_HEIGHT) * half_height      /* y 뒤집기 */
 
 dir = normalize(forward + u * right + v * up)
 ray = { camera.position, dir }

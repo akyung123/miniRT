@@ -94,7 +94,7 @@ t = (-b ± sqrt(D)) / (2a)
 ## 3. 함정
 
 ### 원이 타원으로 찌그러진다
-3단계의 **종횡비 처리를 빠뜨린 것**입니다. `aspect = WIDTH / (double)HEIGHT`.
+3단계의 **종횡비 처리를 빠뜨린 것**입니다. `aspect = WIN_WIDTH / (double)WIN_HEIGHT`.
 
 ### 원이 화면 반대쪽에 있다
 3단계의 **y축 뒤집기**를 빠뜨린 것입니다.

@@ -61,7 +61,7 @@ int   mlx_put_image_to_window(void *mlx_ptr, void *win_ptr, void *img_ptr, int x
 
 **`mlx_get_data_addr`** — 첫 주소를 반환하면서 `bpp` / `size_line` / `endian`을 **출력 인자로 채워줍니다.** 이 셋은 나중에 계속 필요하니 구조체에 보관.
 
-**`mlx_put_image_to_window`** — 마지막 두 인자는 **창 안에서 이미지를 놓을 위치**입니다. 화면 전체를 채우려면 `0, 0`. (`WIDTH/2, HEIGHT/2`를 넣으면 이미지가 오른쪽 아래로 밀려서 1/4만 보입니다.)
+**`mlx_put_image_to_window`** — 마지막 두 인자는 **창 안에서 이미지를 놓을 위치**입니다. 화면 전체를 채우려면 `0, 0`. (`WIN_WIDTH/2, WIN_HEIGHT/2`를 넣으면 이미지가 오른쪽 아래로 밀려서 1/4만 보입니다.)
 
 ---
 
