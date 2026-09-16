@@ -92,9 +92,15 @@ int	in_shadow(t_scene *scene, t_vec3 p)
 	obj = scene->objects;
 	while (obj)
 	{
-		// t_max = dist : 광원보다 뒤의 물체는 무시
+		// t_max = dist - T_MIN : 광원보다 뒤의 물체는 무시
 		// t_min(T_MIN)은 hit_object 안에서 걸러준다 : 자기 표면(acne) 무시
-		if (hit_object(obj, r, dist, &tmp))
+		//
+		// 11단계에서 찾은 버그: 끝쪽에도 T_MIN 여유가 필요하다
+		//   광원이 평면 위에 딱 놓이면 (subject 예시: L -40,0,30 과 pl 0,0,0 0,1,0)
+		//   그림자 광선이 광원에 '도착하는 지점'에서 평면을 t = dist ± 1e-14 로 맞는다
+		//   반올림이 dist 보다 작게 떨어진 픽셀만 그늘 → 구 위에 검은 점무늬
+		//   표면 쪽 끝(t ≈ 0)의 acne 와 같은 병을 광원 쪽 끝에서 앓은 것
+		if (hit_object(obj, r, dist - T_MIN, &tmp))
 			return (1);
 		obj = obj->next;
 	}
