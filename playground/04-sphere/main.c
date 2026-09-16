@@ -38,6 +38,21 @@ int	init_minirt(t_minirt *mini)
 	return (1);
 }
 
+// test용 함수
+static void	print_vec(const char *name, t_vec3 v)
+{
+	printf("%-10s (%.4f, %.4f, %.4f)\n", name, v.x, v.y, v.z);
+}
+
+//
+static void	check_camera(void)
+{
+	print_vec("(0,0)", camera_ray(0, 0).direction);
+	print_vec("(400,300)", camera_ray(400, 300).direction);
+	print_vec("(799,599)", camera_ray(799, 599).direction);
+	printf("----\n");
+}
+
 int main(int argc, char **argv)
 {
 	t_minirt mini;
@@ -46,10 +61,11 @@ int main(int argc, char **argv)
 	(void)argc;
 
 	// minirt setting
+	check_camera();
 	if (!init_minirt(&mini))
 		return (0);
 	// 이미지 만들기
-	draw(&mini); 
+	rander(&mini); 
 	// image에 window 위에 넣기
 	mlx_put_image_to_window(mini.mlx->mlx_ptr, mini.mlx->win_ptr, mini.mlx->img_ptr, 0, 0);
 
