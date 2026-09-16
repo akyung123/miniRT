@@ -739,7 +739,8 @@
     if (w === 0 || h === 0) return;
 
     const view = buildView(state.camera);
-    const focal = h / 2 / Math.tan((state.camera.fov * Math.PI) / 180 / 2);
+    // subject: "FOV: Horizontal field of view" — 가로 폭(w) 기준으로 focal 계산
+    const focal = w / 2 / Math.tan((state.camera.fov * Math.PI) / 180 / 2);
 
     ctx.strokeStyle = "#20262f";
     ctx.strokeRect(0.5, 0.5, w - 1, h - 1);
