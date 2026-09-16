@@ -6,7 +6,7 @@
 /*   By: akkim <akkim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 19:34:10 by akkim             #+#    #+#             */
-/*   Updated: 2026/09/13 23:58:56 by akkim            ###   ########.fr       */
+/*   Updated: 2026/09/17 19:34:10 by akkim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,91 +48,59 @@ t_color	color_lerp(t_color a, t_color b, double t)
 	return (out);
 }
 
-// 픽셀 단위로 렌더 함수
-t_color	render_pixel(t_scene *scene, int x, int y)
+// 아무것도 안 맞았을 때의 배경 = 3단계 하늘 그라디언트
+// 광선이 위를 볼수록(direction.y → +1) 하늘색, 아래를 볼수록 흰색
+static t_color	sky(t_ray r)
 {
-    t_ray	r = camera_ray(x, y);
-    (void) scene;
-    double	t = 0.5 * (r.direction.y + 1.0);
-    return (color_lerp((t_color){1, 1, 1}, (t_color){0.5, 0.7, 1.0}, t));
+	double	t;
 
-    // t_ray	r;
-
-	// (void)scene;
-
-	// r = camera_ray(x, y);
-	// return (vec3_scale(vec3_add(r.direction, (t_vec3){1, 1, 1}), 0.5));
-
-    /*
-    t_color c;
-    double brightness;
-
-    (void)x;
-    (void)y;
-    (void)scene;
-
-    c.x = 0.0;
-    c.y = 0.5;
-    c.z = 0.5;
-    // x값에 따라서 파랑색상 조절(rgb에서 b)
-    //c.y = (double)x / (double)(WIN_WIDTH - 1);
-    //c.z = (double)x / (double)(WIN_WIDTH - 1);
-
-    // 은은한 빛은
-    t_color al;
-    al.x = 1.0;
-    al.y = 1.0;
-    al.z = 1.0;
-    // 세기는 20%
-    al.x *= 0.2;
-    al.y *= 0.2;
-    al.z *= 0.2;
-
-    // if 조명이 파란색이라면? 조명이 scene안에 들어있음
-    // 0.0 0.0 1.0이면 파란색임
-    t_color l;
-    l.x = 0.0;
-    l.y = 0.5;
-    l.z = 0.5;
-
-    // 조명색 조정
-    c.x = c.x * l.x + c.x * al.x;
-    c.y = c.y * l.y + c.y * al.y;
-    c.z = c.z * l.z + c.z * al.z;
-
-    // 밝기 조절
-    brightness = 0.5;
-	c.x = c.x * brightness;
-	c.y = c.y * brightness;
-	c.z = c.z * brightness;
-
-    return(c);
-    */
+	t = 0.5 * (r.direction.y + 1.0);
+	return (color_lerp((t_color){1, 1, 1}, (t_color){0.5, 0.7, 1.0}, t));
 }
 
-// t_color	render_pixel(t_scene *scene, int x, int y)
-// {
-// 	t_color	white;
-// 	t_color	sky;
-// 	double	t;
-// 	(void)scene;
-// 	(void)x;
+/*
+픽셀 하나의 색 = 그 픽셀로 쏜 광선이 '가장 먼저' 맞는 구의 색
 
-// 	white.x = 1.0;
-// 	white.y = 1.0;
-// 	white.z = 1.0;
+핵심은 closest
+  - 처음엔 T_MAX(사실상 무한대)
+  - 구를 하나 맞출 때마다 closest = 그 t 로 줄인다
+  - 다음 구는 t_max 자리에 closest를 넘겨서 '지금까지 찾은 것보다 가까운 교차'만 받는다
+  → 리스트 순서와 상관없이 마지막에 남는 건 가장 가까운 구
+  → 겹친 구 중 앞의 것이 그려지는 '가려짐'이 이것만으로 해결된다
+*/
+t_color	render_pixel(t_scene *scene, int x, int y)
+{
+	t_ray		r;
+	t_object	*obj;
+	t_color		color;
+	double		closest;
+	double		t;
 
-// 	sky.x = 0.5;
-// 	sky.y = 0.7;
-// 	sky.z = 1.0;
-
-// 	t = (double)y / (double)(WIN_HEIGHT - 1);
-// 	return (color_lerp(white, sky, t));
-// }
+	r = camera_ray(x, y);
+	color = sky(r);
+	closest = T_MAX;
+	obj = scene->objects;
+	while (obj)
+	{
+		if (obj->type == OBJ_SPHERE)
+		{
+			// 구조체는 지름을 들고 있으니 / 2.0
+			t = hit_sphere(r, obj->data.sphere.center,
+					obj->data.sphere.diameter / 2.0, T_MIN, closest);
+			// 음수 = 안 맞음 (또는 이미 찾은 것보다 멀다)
+			if (t > 0.0)
+			{
+				closest = t;
+				color = obj->data.sphere.color;
+			}
+		}
+		obj = obj->next;
+	}
+	return (color);
+}
 
 void rander(t_minirt *mini)
 {
-    (void)mini;
     unsigned int    color;
 
     int x, y;
@@ -145,8 +113,9 @@ void rander(t_minirt *mini)
         {
             // create_argb가 이미 0x00RRGGBB 로 만들어주므로 mlx 변환 함수가 필요없다
             // (mlx 함수를 안 부르면 테스트 러너가 mlx 없이 링크할 수 있다)
-            color = create_argb(render_pixel(mini->scene, x, y));
-            my_mlx_pixel_put(mini->mlx, x, y, color);
+            // t_minirt가 구조체를 '값'으로 들고 있으니 주소(&)를 넘긴다
+            color = create_argb(render_pixel(&mini->scene, x, y));
+            my_mlx_pixel_put(&mini->mlx, x, y, color);
             y++;
         }
         x++;
