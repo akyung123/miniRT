@@ -1033,7 +1033,7 @@
     const lightBtn = document.getElementById("light-select-btn");
     lightBtn.classList.toggle("selected", state.selectedId === "light");
     if (state.selectedId === "light") {
-      el.textContent = "조작 대상: Light · WASD/방향키: 이동 · Q/E: 높이 · 다시 클릭: 선택 해제";
+      el.textContent = "조작 대상: Light · WASD/방향키: 이동 · Q/E: 높이 · 드래그: 시점 회전 · 다시 클릭: 선택 해제";
       return;
     }
     const o = state.objects.find((x) => x.id === state.selectedId);
@@ -1136,8 +1136,7 @@
     lastX = e.clientX;
     lastY = e.clientY;
 
-    if (state.selectedId === "light") return;
-    const o = state.objects.find((x) => x.id === state.selectedId);
+    const o = state.selectedId === "light" ? null : state.objects.find((x) => x.id === state.selectedId);
     if (o) {
       if (e.shiftKey && (o.type === "pl" || o.type === "cy")) rotateObjectDirection(o, dx, dy);
       else moveObjectByDrag(o, dx, dy);
