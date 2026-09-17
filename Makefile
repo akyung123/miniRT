@@ -14,7 +14,19 @@ SRCS = srcs/main.c \
 	srcs/output/cleanup.c \
 	srcs/output/hooks.c \
 	srcs/output/mlx_init.c \
-	srcs/output/render_loop.c
+	srcs/output/render_loop.c \
+	srcs/vec3_math.c \
+	srcs/vec3_ops.c \
+	srcs/render/ray.c \
+	srcs/render/camera.c \
+	srcs/render/sphere.c \
+	srcs/render/plane.c \
+	srcs/render/cylinder.c \
+	srcs/render/normal.c \
+	srcs/render/hit_scene.c \
+	srcs/render/lighting.c \
+	srcs/render/shadow.c \
+	srcs/render/render_pixel.c
 OBJS = $(SRCS:.c=.o)
 
 LIBFT_DIR = ./libft
