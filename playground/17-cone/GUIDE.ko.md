@@ -14,6 +14,9 @@ co <center x,y,z> <axis x,y,z> <diameter> <height> <R,G,B>
 cd playground/17-cone
 make
 ./miniRT scenes/cone.rt
+./miniRT scenes/cone_plane.rt    # 밑면 cap + 바닥 그림자
+./miniRT scenes/cone_tilted.rt   # 기울어진 축
+./miniRT scenes/cone_multi.rt    # co 여러 개
 ```
 
 ## 교차
