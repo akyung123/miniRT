@@ -1,0 +1,11 @@
+# 사각형은 반열린 구간: x1 <= x < x2, y1 <= y < y2
+# draw_square <x1,x2> <y1,y2> <color>
+
+img 0
+square 10,40 60,100 0x000000FF
+px 10,60 => 0x000000FF
+px 39,99 => 0x000000FF
+px 40,60 => EMPTY
+px 10,100 => EMPTY
+px 9,60 => EMPTY
+count => 1200

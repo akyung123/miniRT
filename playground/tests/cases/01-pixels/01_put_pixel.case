@@ -1,0 +1,12 @@
+# 이미지 버퍼에 직접 쓰기
+#   img <pad>              새 이미지. size_line = WIN_WIDTH*4 + pad
+#   put <x,y> <color>      my_mlx_pixel_put
+#   px  <x,y> => <color>   그 픽셀의 값 (EMPTY = 아무도 안 씀)
+#   count => <n>           바뀐 픽셀 개수
+
+img 0
+put 400,300 0x00FF0000
+px 400,300 => 0x00FF0000
+px 401,300 => EMPTY
+px 400,301 => EMPTY
+count => 1
