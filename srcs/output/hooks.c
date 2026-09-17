@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "mlx.h"
 #include "output.h"
+#include "move.h"
 
 int	close_hook(void *param)
 {
@@ -17,6 +18,7 @@ int	key_hook(int keycode, void *param)
 {
 	if (keycode == KEY_ESC)
 		return (close_hook(param));
+	move_key_release(keycode);
 	return (0);
 }
 
