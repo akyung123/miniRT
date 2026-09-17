@@ -51,10 +51,11 @@ def scene_list():
     for group, pat in (('check', 'scenes/check/*.rt'),
                        ('repo-valid', '../../scenes/valid/*.rt'),
                        ('repo-invalid', '../../scenes/invalid/*.rt'),
+                       ('edge', 'scenes/edge/*.rt'),
                        ('web', 'scenes/web/*/*.rt')):
         for f in sorted(glob.glob(pat)):
             rel = f.replace('../../', 'repo/').replace('scenes/web/', 'web/')
-            rel = rel.replace('scenes/check/', 'check/')
+            rel = rel.replace('scenes/check/', 'check/').replace('scenes/edge/', 'edge/')
             files.append({'group': group, 'file': f,
                           'id': rel.replace('/', '__')[:-3]})
     return files

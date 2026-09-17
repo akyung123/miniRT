@@ -31,7 +31,11 @@ def _num(tok, errs, what):
     if not NUM.match(tok):
         errs.append(f'{what}: 숫자 아님 "{tok}"')
         return None
-    return float(tok)
+    x = float(tok)
+    if not math.isfinite(x):
+        errs.append(f'{what}: double 로 표현 못 하는 수 (inf) "{tok[:12]}..."')
+        return None
+    return x
 
 
 def _vec(tok, errs, what):

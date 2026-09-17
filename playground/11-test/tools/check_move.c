@@ -90,7 +90,7 @@ int	main(int argc, char **argv)
 	{
 		FILE		*f;
 		t_scene		s2;
-		const char	*tmp = "roundtrip.rt";
+		const char	*tmp = ".build/roundtrip.rt";
 
 		c = c0; hold(&c, ACT_TURN_LEFT, 23); hold(&c, ACT_LOOK_DOWN, 11); hold(&c, ACT_FORWARD, 7);
 		f = fopen(tmp, "w");
