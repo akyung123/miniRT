@@ -5,6 +5,7 @@ int	main(int argc, char **argv)
 {
 	t_scene		scene;
 	t_object	*obj;
+	t_light		*light;
 
 	if (argc != 2)
 	{
@@ -21,10 +22,15 @@ int	main(int argc, char **argv)
 		scene.camera.position.z, scene.camera.orientation.x,
 		scene.camera.orientation.y, scene.camera.orientation.z,
 		scene.camera.fov);
-	printf("light: pos=(%.3f,%.3f,%.3f) brightness=%.3f color=(%.3f,%.3f,%.3f)\n",
-		scene.light.position.x, scene.light.position.y,
-		scene.light.position.z, scene.light.brightness,
-		scene.light.color.x, scene.light.color.y, scene.light.color.z);
+	light = scene.lights;
+	while (light)
+	{
+		printf("light: pos=(%.3f,%.3f,%.3f) brightness=%.3f color=(%.3f,%.3f,%.3f)\n",
+			light->position.x, light->position.y,
+			light->position.z, light->brightness,
+			light->color.x, light->color.y, light->color.z);
+		light = light->next;
+	}
 	obj = scene.objects;
 	while (obj)
 	{
