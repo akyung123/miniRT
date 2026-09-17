@@ -72,7 +72,7 @@ int	main(int argc, char **argv)
 	t_naive = now_ms() - t0;
 	print_result(t_cached, t_naive);
 	fflush(stdout);
-	mlx_hook(rt.mlx.win_ptr, 17, 0, close_hook, &rt);
+	mlx_hook(rt.mlx.win_ptr, 17, CLOSE_MASK, close_hook, &rt);
 	mlx_key_hook(rt.mlx.win_ptr, key_hook, &rt);
 	mlx_loop(rt.mlx.mlx_ptr);
 	return (0);
