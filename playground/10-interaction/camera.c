@@ -34,7 +34,9 @@
   forward = (0,0,-1), world_up = (0,1,0)
   cross(forward, world_up) = (1,0,0)  = +x 오른쪽  ✓
   cross(right, forward)    = (0,1,0)  = +y 위      ✓
-  cross 순서를 뒤집으면 right = -x → 거울에 비친 것처럼 좌우 반전
+  right 의 cross 순서만 뒤집으면 right = -x, 그걸로 만든 up 도 -y → 그림이 180° 돌아간다
+  두 줄 다 뒤집으면 up 은 원래대로(-(-y)) → 거울에 비친 것처럼 좌우만 반전
+  (11단계에서 cam_front.rt 로 렌더해 보니 각각 원본과 픽셀 단위로 정확히 일치)
 */
 
 // 기저 만들기. forward 가 world_up 과 평행하면 cross 가 영벡터가 되니 다른 축으로 바꾼다

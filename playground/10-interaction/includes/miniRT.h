@@ -78,7 +78,7 @@
 #  define KEY_DOWN 65364
 # endif
 
-/* 10단계: 이동/회전 한 프레임 분량. 씬 크기가 제각각이라 make re CFLAGS+=-DMOVE_STEP=5 처럼 바꿔 쓴다 */
+/* 10단계: 이동/회전 한 프레임 분량. 씬 크기가 제각각이라 여기 값을 바꾸고 make re */
 # ifndef MOVE_STEP
 #  define MOVE_STEP 1.0
 # endif
