@@ -105,6 +105,12 @@
     display: block;
     width: 100%;
     height: 100%;
+    cursor: grab;
+    touch-action: none;
+  }
+
+  canvas.dragging {
+    cursor: grabbing;
   }
 
   #hint {
@@ -112,6 +118,16 @@
     top: 10px;
     left: 12px;
     color: var(--text-faint);
+    font-size: 11px;
+    font-family: var(--font-mono);
+    pointer-events: none;
+  }
+
+  #ctrl-target {
+    position: absolute;
+    top: 28px;
+    left: 12px;
+    color: var(--accent);
     font-size: 11px;
     font-family: var(--font-mono);
     pointer-events: none;
@@ -300,6 +316,16 @@
     color: var(--danger);
   }
 
+  .obj-card-head .name-btn {
+    border: none;
+    cursor: pointer;
+  }
+
+  .obj-card.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent-dim);
+  }
+
   .empty-note {
     color: var(--text-faint);
     font-size: 11.5px;
@@ -440,7 +466,8 @@
   <div id="stage">
     <div id="canvas-wrap">
       <canvas id="view"></canvas>
-      <div id="hint">카메라 시점 와이어프레임 미리보기 (음영 없음)</div>
+      <div id="hint">도형 이름 클릭: 선택/해제 (미선택 시 드래그·WASD는 카메라)</div>
+      <div id="ctrl-target"></div>
     </div>
     <div id="rt-panel">
       <div id="rt-panel-head">
@@ -466,8 +493,11 @@
       { id: 1, type: "sp", center: [0, 0, 0], diameter: 20, color: "#ff3b3b" },
       { id: 2, type: "pl", point: [0, -12, 0], normal: [0, 1, 0], color: "#c9cfd8" },
     ],
+    selectedId: null,
   };
   let nextId = 3;
+
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
   /* ---------- vector helpers ---------- */
 
@@ -630,7 +660,10 @@
       [[1, 0, 0], [0, 0, 1]],
       [[0, 1, 0], [0, 0, 1]],
     ];
-    for (const [u, v] of rings) drawPolyline(view, circlePoints(c, u, v, r, 40), w, h, focal, o.color, 1.4);
+    const selected = o.id === state.selectedId;
+    const color = selected ? "#e8973a" : o.color;
+    const lineWidth = selected ? 2.4 : 1.4;
+    for (const [u, v] of rings) drawPolyline(view, circlePoints(c, u, v, r, 40), w, h, focal, color, lineWidth);
   }
 
   function drawPlane(view, o, w, h, focal) {
@@ -638,9 +671,12 @@
     const [u, v] = planeBasis(n);
     const ext = 24;
     const step = 6;
+    const selected = o.id === state.selectedId;
+    const color = selected ? "#e8973a" : o.color;
+    const lineWidth = selected ? 1.8 : 1;
     for (let i = -ext; i <= ext; i += step) {
-      drawSegment(view, add(o.point, add(scl(u, i), scl(v, -ext))), add(o.point, add(scl(u, i), scl(v, ext))), w, h, focal, o.color, 1);
-      drawSegment(view, add(o.point, add(scl(v, i), scl(u, -ext))), add(o.point, add(scl(v, i), scl(u, ext))), w, h, focal, o.color, 1);
+      drawSegment(view, add(o.point, add(scl(u, i), scl(v, -ext))), add(o.point, add(scl(u, i), scl(v, ext))), w, h, focal, color, lineWidth);
+      drawSegment(view, add(o.point, add(scl(v, i), scl(u, -ext))), add(o.point, add(scl(v, i), scl(u, ext))), w, h, focal, color, lineWidth);
     }
   }
 
@@ -653,9 +689,12 @@
     const [u, v] = planeBasis(a);
     const topPts = circlePoints(top, u, v, r, 32);
     const botPts = circlePoints(bot, u, v, r, 32);
-    drawPolyline(view, topPts, w, h, focal, o.color, 1.4);
-    drawPolyline(view, botPts, w, h, focal, o.color, 1.4);
-    for (let i = 0; i < 32; i += 8) drawSegment(view, topPts[i], botPts[i], w, h, focal, o.color, 1.4);
+    const selected = o.id === state.selectedId;
+    const color = selected ? "#e8973a" : o.color;
+    const lineWidth = selected ? 2.4 : 1.4;
+    drawPolyline(view, topPts, w, h, focal, color, lineWidth);
+    drawPolyline(view, botPts, w, h, focal, color, lineWidth);
+    for (let i = 0; i < 32; i += 8) drawSegment(view, topPts[i], botPts[i], w, h, focal, color, lineWidth);
   }
 
   function drawAxes(view, w, h, focal) {
@@ -700,7 +739,8 @@
     if (w === 0 || h === 0) return;
 
     const view = buildView(state.camera);
-    const focal = h / 2 / Math.tan((state.camera.fov * Math.PI) / 180 / 2);
+    // subject: "FOV: Horizontal field of view" — 가로 폭(w) 기준으로 focal 계산
+    const focal = w / 2 / Math.tan((state.camera.fov * Math.PI) / 180 / 2);
 
     ctx.strokeStyle = "#20262f";
     ctx.strokeRect(0.5, 0.5, w - 1, h - 1);
@@ -732,6 +772,7 @@
   function refreshAll() {
     render();
     refreshOutput();
+    updateCtrlTarget();
   }
 
   /* ---------- object list UI ---------- */
@@ -802,18 +843,25 @@
     }
     for (const o of state.objects) {
       const card = document.createElement("div");
-      card.className = "obj-card";
+      card.className = "obj-card" + (o.id === state.selectedId ? " selected" : "");
 
       const head = document.createElement("div");
       head.className = "obj-card-head";
-      const chip = document.createElement("span");
-      chip.className = "obj-chip " + o.type;
+      const chip = document.createElement("button");
+      chip.className = "obj-chip " + o.type + " name-btn";
       chip.textContent = objLabel(o);
+      chip.title = "클릭해서 선택 (선택 후 방향키로 이동, Q/E로 높이)";
+      chip.addEventListener("click", () => {
+        state.selectedId = state.selectedId === o.id ? null : o.id;
+        renderObjList();
+        refreshAll();
+      });
       const rm = document.createElement("button");
       rm.className = "rm";
       rm.textContent = "✕";
       rm.title = "삭제";
       rm.addEventListener("click", () => {
+        if (state.selectedId === o.id) state.selectedId = null;
         state.objects = state.objects.filter((x) => x.id !== o.id);
         renderObjList();
         refreshAll();
@@ -929,7 +977,179 @@
     }
   });
 
+  /* ---------- control-target label ---------- */
+
+  function updateCtrlTarget() {
+    const el = document.getElementById("ctrl-target");
+    const o = state.objects.find((x) => x.id === state.selectedId);
+    if (o) {
+      const canRotate = o.type === "pl" || o.type === "cy";
+      el.textContent =
+        `조작 대상: ${objLabel(o)} #${o.id} · WASD/방향키·드래그: 이동 · Q/E: 높이` +
+        (canRotate ? " · Shift+드래그: 회전" : "") +
+        " · 다시 클릭: 선택 해제";
+    } else {
+      el.textContent = "조작 대상: 카메라 · WASD: 이동 · Q/E: 높이 · 드래그: 시점 회전";
+    }
+  }
+
+  /* ---------- camera-relative ground axes ---------- */
+
+  function groundBasis(cam) {
+    const yaw = (cam.yaw * Math.PI) / 180;
+    const fwd = [Math.sin(yaw), 0, Math.cos(yaw)];
+    const right = [Math.cos(yaw), 0, -Math.sin(yaw)];
+    return { fwd, right };
+  }
+
+  function syncCameraSliders() {
+    const yaw = document.getElementById("c-yaw");
+    const yawOut = document.getElementById("c-yaw-out");
+    yaw.value = state.camera.yaw;
+    yawOut.textContent = Math.round(state.camera.yaw) + "°";
+    const pitch = document.getElementById("c-pitch");
+    const pitchOut = document.getElementById("c-pitch-out");
+    pitch.value = state.camera.pitch;
+    pitchOut.textContent = Math.round(state.camera.pitch) + "°";
+  }
+
+  function syncCameraPositionInputs() {
+    document.getElementById("c-px").value = fmt(state.camera.pos[0]);
+    document.getElementById("c-py").value = fmt(state.camera.pos[1]);
+    document.getElementById("c-pz").value = fmt(state.camera.pos[2]);
+  }
+
+  /* ---------- object direction (normal/axis) as yaw/pitch ---------- */
+
+  function vectorToYawPitch(v) {
+    const n = norm(v);
+    return { yaw: Math.atan2(n[0], n[2]), pitch: Math.asin(clamp(n[1], -1, 1)) };
+  }
+
+  function yawPitchToVector(yaw, pitch) {
+    return [Math.cos(pitch) * Math.sin(yaw), Math.sin(pitch), Math.cos(pitch) * Math.cos(yaw)];
+  }
+
+  function rotateObjectDirection(o, dx, dy) {
+    const vec = o.type === "pl" ? o.normal : o.axis;
+    const { yaw, pitch } = vectorToYawPitch(vec);
+    const sens = 0.01;
+    const newYaw = yaw + dx * sens;
+    const newPitch = clamp(pitch - dy * sens, -Math.PI / 2 + 0.01, Math.PI / 2 - 0.01);
+    const nv = yawPitchToVector(newYaw, newPitch);
+    vec[0] = nv[0];
+    vec[1] = nv[1];
+    vec[2] = nv[2];
+  }
+
+  function moveObjectByDrag(o, dx, dy) {
+    const { fwd, right } = groundBasis(state.camera);
+    const scale = 0.15;
+    const p = o.type === "pl" ? o.point : o.center;
+    p[0] += right[0] * dx * scale + fwd[0] * -dy * scale;
+    p[2] += right[2] * dx * scale + fwd[2] * -dy * scale;
+  }
+
+  /* ---------- mouse drag: camera orbit / selected-object move & rotate ---------- */
+
+  let dragging = false;
+  let lastX = 0;
+  let lastY = 0;
+  const DRAG_SENSITIVITY = 0.3;
+
+  canvas.addEventListener("pointerdown", (e) => {
+    if (document.activeElement && document.activeElement !== document.body) {
+      document.activeElement.blur();
+    }
+    dragging = true;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    canvas.setPointerCapture(e.pointerId);
+    canvas.classList.add("dragging");
+  });
+
+  canvas.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
+    lastX = e.clientX;
+    lastY = e.clientY;
+
+    const o = state.objects.find((x) => x.id === state.selectedId);
+    if (o) {
+      if (e.shiftKey && (o.type === "pl" || o.type === "cy")) rotateObjectDirection(o, dx, dy);
+      else moveObjectByDrag(o, dx, dy);
+      renderObjList();
+    } else {
+      state.camera.yaw = clamp(state.camera.yaw + dx * DRAG_SENSITIVITY, -180, 180);
+      state.camera.pitch = clamp(state.camera.pitch - dy * DRAG_SENSITIVITY, -89, 89);
+      syncCameraSliders();
+    }
+    refreshAll();
+  });
+
+  const stopDrag = () => {
+    dragging = false;
+    canvas.classList.remove("dragging");
+  };
+  canvas.addEventListener("pointerup", stopDrag);
+  canvas.addEventListener("pointercancel", stopDrag);
+  canvas.addEventListener("pointerleave", stopDrag);
+
+  /* ---------- keyboard: move selected object, or fly camera ---------- */
+
+  const MOVE_STEP = 1;
+
+  window.addEventListener("keydown", (e) => {
+    const active = document.activeElement;
+    if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA")) return;
+
+    if (state.selectedId == null) {
+      const { fwd, right } = groundBasis(state.camera);
+      let moved = true;
+      if (e.key === "w" || e.key === "W") {
+        state.camera.pos[0] += fwd[0] * MOVE_STEP;
+        state.camera.pos[2] += fwd[2] * MOVE_STEP;
+      } else if (e.key === "s" || e.key === "S") {
+        state.camera.pos[0] -= fwd[0] * MOVE_STEP;
+        state.camera.pos[2] -= fwd[2] * MOVE_STEP;
+      } else if (e.key === "a" || e.key === "A") {
+        state.camera.pos[0] -= right[0] * MOVE_STEP;
+        state.camera.pos[2] -= right[2] * MOVE_STEP;
+      } else if (e.key === "d" || e.key === "D") {
+        state.camera.pos[0] += right[0] * MOVE_STEP;
+        state.camera.pos[2] += right[2] * MOVE_STEP;
+      } else if (e.key === "q" || e.key === "Q") state.camera.pos[1] -= MOVE_STEP;
+      else if (e.key === "e" || e.key === "E") state.camera.pos[1] += MOVE_STEP;
+      else moved = false;
+      if (moved) {
+        e.preventDefault();
+        syncCameraPositionInputs();
+        refreshAll();
+      }
+      return;
+    }
+
+    const o = state.objects.find((x) => x.id === state.selectedId);
+    if (!o) return;
+    const p = o.type === "pl" ? o.point : o.center;
+    let moved = true;
+    if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") p[0] -= MOVE_STEP;
+    else if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") p[0] += MOVE_STEP;
+    else if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") p[2] += MOVE_STEP;
+    else if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") p[2] -= MOVE_STEP;
+    else if (e.key === "q" || e.key === "Q") p[1] -= MOVE_STEP;
+    else if (e.key === "e" || e.key === "E") p[1] += MOVE_STEP;
+    else moved = false;
+    if (moved) {
+      e.preventDefault();
+      renderObjList();
+      refreshAll();
+    }
+  });
+
   window.addEventListener("resize", resizeCanvas);
   renderObjList();
+  updateCtrlTarget();
   resizeCanvas();
 </script>

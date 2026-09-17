@@ -27,6 +27,22 @@ PARSING_SRCS = ../parsing/free_scene.c \
 	../parsing/parse_utils.c \
 	../parsing/str_to_double.c
 
+RENDER_SRCS = ../vec3_math.c \
+	../vec3_ops.c \
+	../render/ray.c \
+	../render/camera.c \
+	../render/sphere.c \
+	../render/plane.c \
+	../render/cylinder.c \
+	../render/normal.c \
+	../render/hit_scene.c \
+	../render/lighting.c \
+	../render/shadow.c \
+	../render/render_pixel.c \
+	../move/move_key.c \
+	../move/move_camera.c \
+	../move/move_render.c
+
 .PHONY: all clean fclean re test perf ensure-mlx
 
 all: $(OBJS)
@@ -41,8 +57,7 @@ fclean: clean
 
 re: fclean all
 
-# render_pixel 스텁(그라디언트)으로 output 모듈만 독립 테스트
-# (실제 render_pixel 붙기 전까지, mlx 창 뜨는지/이벤트 루프 도는지 확인용)
+# mlx 창이 뜨는지/이벤트 루프 도는지 확인 (실제 render_pixel + 카메라 이동 포함)
 MLX_LINUX_REPO = https://github.com/42Paris/minilibx-linux.git
 
 ensure-mlx:
@@ -59,7 +74,7 @@ ensure-mlx:
 test: ensure-mlx
 	make -C ../../libft
 	$(CC) $(CFLAGS) $(INCLUDE) $(SRCS) ../error.c ../main.c \
-		$(PARSING_SRCS) ../../tests/render_pixel_stub.c \
+		$(PARSING_SRCS) $(RENDER_SRCS) \
 		-L../../libft -L$(MLX_DIR) -lft $(MLX_LIBS) -lm \
 		-o ../../tests/output_test
 	../../tests/output_test ../../scenes/valid/example.rt
