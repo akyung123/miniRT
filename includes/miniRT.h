@@ -93,6 +93,9 @@ typedef struct s_object
 {
 	t_object_type	type;
 	t_object_data	data;
+	int				checker;
+	double			checker_scale;
+	t_color			checker_color;
 	struct s_object	*next;
 }	t_object;
 

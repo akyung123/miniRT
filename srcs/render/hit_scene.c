@@ -6,7 +6,7 @@
 /*   By: akkim <akkim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/17 19:34:10 by akkim             #+#    #+#             */
-/*   Updated: 2026/09/17 19:34:10 by akkim            ###   ########.fr       */
+/*   Updated: 2026/09/17 20:30:00 by akkim            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,13 +70,18 @@ static int	hit_cylinder_obj(t_cylinder *cy, t_ray r, double t_max,
 
 int	hit_object(t_object *obj, t_ray r, double t_max, t_hit *rec)
 {
+	int	hit;
+
+	hit = 0;
 	if (obj->type == OBJ_SPHERE)
-		return (hit_sphere_obj(&obj->data.sphere, r, t_max, rec));
-	if (obj->type == OBJ_PLANE)
-		return (hit_plane_obj(&obj->data.plane, r, t_max, rec));
-	if (obj->type == OBJ_CYLINDER)
-		return (hit_cylinder_obj(&obj->data.cylinder, r, t_max, rec));
-	return (0);
+		hit = hit_sphere_obj(&obj->data.sphere, r, t_max, rec);
+	else if (obj->type == OBJ_PLANE)
+		hit = hit_plane_obj(&obj->data.plane, r, t_max, rec);
+	else if (obj->type == OBJ_CYLINDER)
+		hit = hit_cylinder_obj(&obj->data.cylinder, r, t_max, rec);
+	if (hit && obj->checker)
+		rec->color = apply_checker(obj, rec);
+	return (hit);
 }
 
 int	hit_scene(t_scene *scene, t_ray r, double t_max, t_hit *rec)
