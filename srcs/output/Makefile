@@ -27,7 +27,7 @@ PARSING_SRCS = ../parsing/free_scene.c \
 	../parsing/parse_utils.c \
 	../parsing/str_to_double.c
 
-.PHONY: all clean fclean re test
+.PHONY: all clean fclean re test perf ensure-mlx
 
 all: $(OBJS)
 
@@ -43,9 +43,21 @@ re: fclean all
 
 # render_pixel 스텁(그라디언트)으로 output 모듈만 독립 테스트
 # (실제 render_pixel 붙기 전까지, mlx 창 뜨는지/이벤트 루프 도는지 확인용)
-test:
-	make -C ../../libft
+MLX_LINUX_REPO = https://github.com/42Paris/minilibx-linux.git
+
+ensure-mlx:
+	@if [ ! -d "$(MLX_DIR)" ]; then \
+		if [ "$(UNAME_S)" = "Linux" ]; then \
+			git clone --depth 1 $(MLX_LINUX_REPO) $(MLX_DIR); \
+		else \
+			echo "minilibx not found: $(MLX_DIR)"; \
+			exit 1; \
+		fi; \
+	fi
 	make -C $(MLX_DIR)
+
+test: ensure-mlx
+	make -C ../../libft
 	$(CC) $(CFLAGS) $(INCLUDE) $(SRCS) ../error.c ../main.c \
 		$(PARSING_SRCS) ../../tests/render_pixel_stub.c \
 		-L../../libft -L$(MLX_DIR) -lft $(MLX_LIBS) -lm \
@@ -53,9 +65,8 @@ test:
 	../../tests/output_test ../../scenes/valid/example.rt
 
 # 이미지 버퍼 캐싱(render_all) vs mlx_pixel_put 매 픽셀 호출 속도 비교 데모
-perf:
+perf: ensure-mlx
 	make -C ../../libft
-	make -C $(MLX_DIR)
 	$(CC) $(CFLAGS) $(INCLUDE) $(SRCS) ../error.c \
 		$(PARSING_SRCS) ../../tests/render_pixel_stub.c \
 		../../tests/perf_test.c \

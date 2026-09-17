@@ -3,10 +3,13 @@
 
 # include "miniRT.h"
 
+# define DESTROY_NOTIFY 17
 # ifdef __APPLE__
 #  define KEY_ESC 53
+#  define DESTROY_MASK 0
 # else
 #  define KEY_ESC 65307
+#  define DESTROY_MASK (1L << 17)
 # endif
 
 /* render_pixel은 원래 miniRT.h에 선언될 인터페이스 함수 (PR #1 대기 중,

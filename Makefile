@@ -34,6 +34,7 @@ MLX = $(MLX_DIR)/libmlx.a
 INCLUDE = -I./includes -I$(MLX_DIR) -I./libft
 
 LIBS = -L$(LIBFT_DIR) -L$(MLX_DIR) -lft $(MLX_LIBS) -lm
+MLX_LINUX_REPO = https://github.com/42Paris/minilibx-linux.git
 
 .PHONY : all
 all: $(LIBFT) $(MLX) $(NAME)
@@ -42,6 +43,14 @@ $(LIBFT):
 	make -C $(LIBFT_DIR)
 
 $(MLX):
+	@if [ ! -d "$(MLX_DIR)" ]; then \
+		if [ "$(UNAME_S)" = "Linux" ]; then \
+			git clone --depth 1 $(MLX_LINUX_REPO) $(MLX_DIR); \
+		else \
+			echo "minilibx not found: $(MLX_DIR)"; \
+			exit 1; \
+		fi; \
+	fi
 	make -C $(MLX_DIR)
 
 %.o: %.c
@@ -54,7 +63,7 @@ $(NAME): $(OBJS)
 clean:
 	rm -f $(OBJS)
 	make -C $(LIBFT_DIR) clean
-	make -C $(MLX_DIR) clean
+	@if [ -d "$(MLX_DIR)" ]; then make -C $(MLX_DIR) clean; fi
 
 .PHONY: fclean
 fclean: clean
