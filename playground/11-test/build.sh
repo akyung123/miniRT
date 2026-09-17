@@ -6,8 +6,8 @@ STEP=${STEP:-../10-interaction}
 OUT=.build
 mkdir -p "$OUT"
 SRCS=$(ls "$STEP"/*.c | grep -v -e '/main\.c$' -e '/hooks\.c$')
-TEAM="$R/srcs/parsing/free_scene.c $R/srcs/parsing/parse_elements.c $R/srcs/parsing/parse_numbers.c \
-$R/srcs/parsing/parse_objects.c $R/srcs/parsing/parse_scene.c $R/srcs/parsing/parse_utils.c $R/srcs/error.c"
+# 파서 파일은 나열하지 않고 폴더째 (서연 파서에서 str_to_double.c 가 분리된 뒤 링크가 깨졌었다)
+TEAM="$(ls $R/srcs/parsing/*.c) $R/srcs/error.c"
 INC="-I$STEP/includes -I../tests -I$R/minilibx_macos_opengl -I$R/includes -I$R/libft"
 LIB="-L$R/libft -lft -lm"
 [ -f "$R/libft/libft.a" ] || make -C "$R/libft" >/dev/null

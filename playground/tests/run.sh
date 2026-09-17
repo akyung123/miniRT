@@ -62,10 +62,8 @@ run_step()
 		if [ ! -f ../../libft/libft.a ]; then
 			make -C ../../libft >/dev/null 2>&1
 		fi
-		extra="../../srcs/parsing/parse_scene.c ../../srcs/parsing/parse_elements.c \
-../../srcs/parsing/parse_numbers.c ../../srcs/parsing/parse_objects.c \
-../../srcs/parsing/parse_utils.c ../../srcs/parsing/free_scene.c \
-../../srcs/error.c -L../../libft -lft"
+		# 파일 이름을 나열하지 않는다: 파서 쪽에서 파일을 나누면(예: str_to_double.c) 링크가 깨진다
+		extra="$(ls ../../srcs/parsing/*.c) ../../srcs/error.c -L../../libft -lft"
 	fi
 
 	out="$BUILD/t$n"
