@@ -2,7 +2,19 @@ NAME = miniRT
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -g
 
-SRCS = $(wildcard srcs/*.c srcs/parsing/*.c srcs/output/*.c)
+SRCS = srcs/main.c \
+	srcs/error.c \
+	srcs/parsing/free_scene.c \
+	srcs/parsing/parse_elements.c \
+	srcs/parsing/parse_numbers.c \
+	srcs/parsing/parse_objects.c \
+	srcs/parsing/parse_scene.c \
+	srcs/parsing/parse_utils.c \
+	srcs/parsing/str_to_double.c \
+	srcs/output/cleanup.c \
+	srcs/output/hooks.c \
+	srcs/output/mlx_init.c \
+	srcs/output/render_loop.c
 OBJS = $(SRCS:.c=.o)
 
 LIBFT_DIR = ./libft

@@ -1,6 +1,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include "libft.h"
+#include "get_next_line.h"
 #include "parsing.h"
 
 int	parse_line(const char *line, t_scene *scene, t_parse_flags *flags)
@@ -40,7 +42,7 @@ static void	strip_newline(char *line)
 		line[--len] = '\0';
 }
 
-static int	process_fd(int fd, t_scene *scene, t_parse_flags *flags)
+static int	parse_lines(int fd, t_scene *scene, t_parse_flags *flags)
 {
 	char	*line;
 	int		ok;
@@ -52,7 +54,7 @@ static int	process_fd(int fd, t_scene *scene, t_parse_flags *flags)
 		strip_newline(line);
 		if (ok && line[0] && !parse_line(line, scene, flags))
 		{
-			ft_error("invalid or duplicated scene line");
+			ft_error("failed to parse scene line");
 			ok = 0;
 		}
 		free(line);
@@ -73,7 +75,7 @@ int	parse_scene(const char *path, t_scene *scene)
 	fd = open(path, O_RDONLY);
 	if (fd < 0)
 		return (ft_sys_error("open"), 0);
-	if (!process_fd(fd, scene, &flags))
+	if (!parse_lines(fd, scene, &flags))
 	{
 		close(fd);
 		free_scene(scene);

@@ -53,7 +53,7 @@ int	parse_plane(char **tokens, t_scene *scene)
 		return (free(obj), 0);
 	if (!parse_vec3(tokens[2], &obj->data.plane.normal))
 		return (free(obj), 0);
-	if (!valid_direction(&obj->data.plane.normal))
+	if (!normalize_direction(&obj->data.plane.normal))
 		return (free(obj), 0);
 	if (!parse_color(tokens[3], &obj->data.plane.color))
 		return (free(obj), 0);
@@ -76,7 +76,7 @@ int	parse_cylinder(char **tokens, t_scene *scene)
 		return (free(obj), 0);
 	if (!parse_vec3(tokens[2], &obj->data.cylinder.axis))
 		return (free(obj), 0);
-	if (!valid_direction(&obj->data.cylinder.axis))
+	if (!normalize_direction(&obj->data.cylinder.axis))
 		return (free(obj), 0);
 	obj->data.cylinder.diameter = str_to_double(tokens[3], &ok);
 	if (!ok || obj->data.cylinder.diameter <= 0.0)

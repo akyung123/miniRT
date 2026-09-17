@@ -13,8 +13,19 @@ endif
 
 INCLUDE = -I../../includes -I$(MLX_DIR) -I../../libft
 
-SRCS = $(wildcard *.c)
+SRCS = cleanup.c \
+	hooks.c \
+	mlx_init.c \
+	render_loop.c
 OBJS = $(SRCS:.c=.o)
+
+PARSING_SRCS = ../parsing/free_scene.c \
+	../parsing/parse_elements.c \
+	../parsing/parse_numbers.c \
+	../parsing/parse_objects.c \
+	../parsing/parse_scene.c \
+	../parsing/parse_utils.c \
+	../parsing/str_to_double.c
 
 .PHONY: all clean fclean re test
 
@@ -36,7 +47,7 @@ test:
 	make -C ../../libft
 	make -C $(MLX_DIR)
 	$(CC) $(CFLAGS) $(INCLUDE) $(SRCS) ../error.c ../main.c \
-		../parsing/*.c ../../tests/render_pixel_stub.c \
+		$(PARSING_SRCS) ../../tests/render_pixel_stub.c \
 		-L../../libft -L$(MLX_DIR) -lft $(MLX_LIBS) -lm \
 		-o ../../tests/output_test
 	../../tests/output_test ../../scenes/valid/example.rt
@@ -46,7 +57,7 @@ perf:
 	make -C ../../libft
 	make -C $(MLX_DIR)
 	$(CC) $(CFLAGS) $(INCLUDE) $(SRCS) ../error.c \
-		../parsing/*.c ../../tests/render_pixel_stub.c \
+		$(PARSING_SRCS) ../../tests/render_pixel_stub.c \
 		../../tests/perf_test.c \
 		-L../../libft -L$(MLX_DIR) -lft $(MLX_LIBS) -lm \
 		-o ../../tests/perf_test

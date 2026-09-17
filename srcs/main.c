@@ -6,11 +6,15 @@
 static int	has_rt_extension(const char *path)
 {
 	int	len;
+	int	base;
 
 	len = 0;
 	while (path[len])
 		len++;
-	if (len < 3)
+	base = len;
+	while (base > 0 && path[base - 1] != '/')
+		base--;
+	if (len - base <= 3)
 		return (0);
 	return (path[len - 3] == '.' && path[len - 2] == 'r'
 		&& path[len - 1] == 't');
