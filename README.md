@@ -45,6 +45,15 @@ the Makefile picks the right minilibx variant via `uname`.
 Each scene needs exactly one `A`, one `C`, and one `L`; objects (`sp`/`pl`/`cy`)
 can appear any number of times.
 
+Optional trailing tokens on an object (bonus 02, ignored unless present):
+
+```
+ck <scale> <R,G,B>
+```
+
+enables a checkerboard albedo. Mandatory scenes without `ck` parse unchanged.
+See [`playground/02/`](playground/02/) for the formula, demo scene, and how to run.
+
 ## Memory check (valgrind)
 
 ```bash

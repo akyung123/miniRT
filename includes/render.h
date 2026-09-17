@@ -68,6 +68,7 @@ t_vec3	sphere_normal(t_vec3 center, double radius, t_vec3 p);
 t_vec3	cylinder_normal(t_cylinder *cy, t_vec3 p);
 int		hit_object(t_object *obj, t_ray r, double t_max, t_hit *rec);
 int		hit_scene(t_scene *scene, t_ray r, double t_max, t_hit *rec);
+t_color	apply_checker(t_object *obj, t_hit *rec);
 double	diffuse_factor(t_vec3 normal, t_vec3 light_dir);
 t_color	apply_ambient(t_color obj, t_color amb, double ratio);
 t_color	lighting(t_scene *scene, t_hit *rec);

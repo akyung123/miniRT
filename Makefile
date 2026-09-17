@@ -24,6 +24,7 @@ SRCS = srcs/main.c \
 	srcs/render/cylinder.c \
 	srcs/render/normal.c \
 	srcs/render/hit_scene.c \
+	srcs/render/checkerboard.c \
 	srcs/render/lighting.c \
 	srcs/render/shadow.c \
 	srcs/render/render_pixel.c

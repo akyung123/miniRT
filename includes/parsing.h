@@ -24,6 +24,7 @@ int		parse_light(char **tokens, t_scene *scene, t_parse_flags *flags);
 int		parse_sphere(char **tokens, t_scene *scene);
 int		parse_plane(char **tokens, t_scene *scene);
 int		parse_cylinder(char **tokens, t_scene *scene);
+int		parse_checker(char **tokens, int i, t_object *obj);
 void	add_object(t_scene *scene, t_object *obj);
 
 #endif
