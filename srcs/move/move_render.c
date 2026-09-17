@@ -10,9 +10,25 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <sys/time.h>
 #include "mlx.h"
 #include "output.h"
 #include "move.h"
+
+static int	should_tick(void)
+{
+	static struct timeval	last;
+	struct timeval			now;
+	long					ms;
+
+	gettimeofday(&now, NULL);
+	ms = (now.tv_sec - last.tv_sec) * 1000L
+		+ (now.tv_usec - last.tv_usec) / 1000L;
+	if (last.tv_sec != 0 && ms < 16)
+		return (0);
+	last = now;
+	return (1);
+}
 
 static void	put_px(t_mlx *mlx, int x, int y, int color)
 {
@@ -77,6 +93,8 @@ int	move_loop_hook(void *param)
 	t_minirt	*rt;
 	t_move		*st;
 
+	if (!should_tick())
+		return (0);
 	rt = (t_minirt *)param;
 	st = move_state();
 	if (move_apply(&rt->scene.camera, st->held))
