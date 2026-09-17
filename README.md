@@ -82,7 +82,11 @@ valgrind --leak-check=full --show-leak-kinds=all --suppressions=.valgrind.supp \
 [`tools/scene_builder.html`](tools/scene_builder.html) — a standalone,
 browser-based scene editor. Lets you place objects, move the camera, and
 generates the `.rt` text live. Open the file directly in a browser, no
-server needed.
+server needed:
+
+```bash
+open tools/scene_builder.html   # macOS; xdg-open on Linux
+```
 
 **Controls:**
 
