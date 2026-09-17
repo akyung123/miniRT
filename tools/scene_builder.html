@@ -703,7 +703,7 @@
   function drawPlane(view, o, w, h, focal) {
     const n = norm(o.normal);
     const [u, v] = planeBasis(n);
-    const ext = 24;
+    const ext = 12;
     const step = 6;
     const selected = o.id === state.selectedId;
     const color = selected ? "#e8973a" : o.color;
@@ -1231,4 +1231,8 @@
   renderObjList();
   updateCtrlTarget();
   resizeCanvas();
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(resizeCanvas);
+  }
 </script>
