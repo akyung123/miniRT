@@ -269,6 +269,7 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
+    cursor: pointer;
   }
 
   .obj-card-head {
@@ -314,11 +315,6 @@
 
   .obj-card-head .rm:hover {
     color: var(--danger);
-  }
-
-  .obj-card-head .name-btn {
-    border: none;
-    cursor: pointer;
   }
 
   .obj-card.selected {
@@ -847,15 +843,9 @@
 
       const head = document.createElement("div");
       head.className = "obj-card-head";
-      const chip = document.createElement("button");
-      chip.className = "obj-chip " + o.type + " name-btn";
+      const chip = document.createElement("span");
+      chip.className = "obj-chip " + o.type;
       chip.textContent = objLabel(o);
-      chip.title = "클릭해서 선택 (선택 후 방향키로 이동, Q/E로 높이)";
-      chip.addEventListener("click", () => {
-        state.selectedId = state.selectedId === o.id ? null : o.id;
-        renderObjList();
-        refreshAll();
-      });
       const rm = document.createElement("button");
       rm.className = "rm";
       rm.textContent = "✕";
@@ -868,6 +858,13 @@
       });
       head.append(chip, rm);
       card.appendChild(head);
+      card.title = "클릭해서 선택 (선택 후 방향키로 이동, Q/E로 높이)";
+      card.addEventListener("click", (e) => {
+        if (e.target === rm || e.target.tagName === "INPUT") return;
+        state.selectedId = state.selectedId === o.id ? null : o.id;
+        renderObjList();
+        refreshAll();
+      });
 
       const posRow = document.createElement("div");
       posRow.className = "field-row";
