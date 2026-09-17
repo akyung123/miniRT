@@ -563,10 +563,12 @@
     return { pos: cam.pos, forward, right, up };
   }
 
+  const NEAR_CLIP = 1;
+
   function project(view, p, w, h, focal) {
     const rel = sub(p, view.pos);
     const vz = dot(rel, view.forward);
-    if (vz < 0.05) return null;
+    if (vz < NEAR_CLIP) return null;
     const vx = dot(rel, view.right);
     const vy = dot(rel, view.up);
     return [w / 2 + (vx / vz) * focal, h / 2 - (vy / vz) * focal, vz];
@@ -645,9 +647,23 @@
     render();
   }
 
+  function clipNear(view, p1, p2) {
+    const vz1 = dot(sub(p1, view.pos), view.forward);
+    const vz2 = dot(sub(p2, view.pos), view.forward);
+    const in1 = vz1 >= NEAR_CLIP;
+    const in2 = vz2 >= NEAR_CLIP;
+    if (!in1 && !in2) return null;
+    if (in1 && in2) return [p1, p2];
+    const t = (NEAR_CLIP - vz1) / (vz2 - vz1);
+    const mid = add(p1, scl(sub(p2, p1), t));
+    return in1 ? [p1, mid] : [mid, p2];
+  }
+
   function drawSegment(view, p1, p2, w, h, focal, color, lineWidth) {
-    const s1 = project(view, p1, w, h, focal);
-    const s2 = project(view, p2, w, h, focal);
+    const clipped = clipNear(view, p1, p2);
+    if (!clipped) return;
+    const s1 = project(view, clipped[0], w, h, focal);
+    const s2 = project(view, clipped[1], w, h, focal);
     if (!s1 || !s2) return;
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth || 1;
