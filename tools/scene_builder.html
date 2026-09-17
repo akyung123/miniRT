@@ -703,7 +703,7 @@
   function drawPlane(view, o, w, h, focal) {
     const n = norm(o.normal);
     const [u, v] = planeBasis(n);
-    const ext = 12;
+    const ext = 24;
     const step = 6;
     const selected = o.id === state.selectedId;
     const color = selected ? "#e8973a" : o.color;
