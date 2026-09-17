@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <stddef.h>
 #include <sys/time.h>
 #include "mlx.h"
 #include "output.h"
