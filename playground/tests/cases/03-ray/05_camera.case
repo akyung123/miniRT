@@ -1,0 +1,22 @@
+# 3단계 임시 카메라: 원점에서 -z 를 봅니다.
+#   cam_dir <x> <y> => <방향> ~<허용오차>
+#   cam_len <x> <y> => 1            방향이 정규화되어 있는가
+#   cam_sx  <x> <y> => POS|NEG      dir.x 의 부호
+#   cam_sy  <x> <y> => POS|NEG      dir.y 의 부호
+#   cam_aspect => WIDER             가로 화각이 세로보다 넓은가
+
+cam_len 400 300 => 1
+cam_dir 400 300 => 0,0,-1 ~0.01
+
+# 좌우
+cam_sx 0 300 => NEG
+cam_sx 799 300 => POS
+cam_symmetry => YES
+
+# y 뒤집기: 화면 위쪽(y=0)이 3D 의 +y 여야 합니다.
+# 빠뜨리면 4단계에서 그림이 상하 반전됩니다.
+cam_sy 400 0 => POS
+cam_sy 400 599 => NEG
+
+# 종횡비를 안 곱하면 원이 타원이 됩니다.
+cam_aspect => WIDER

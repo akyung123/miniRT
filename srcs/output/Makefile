@@ -38,10 +38,7 @@ RENDER_SRCS = ../vec3_math.c \
 	../render/hit_scene.c \
 	../render/lighting.c \
 	../render/shadow.c \
-	../render/render_pixel.c \
-	../move/move_key.c \
-	../move/move_camera.c \
-	../move/move_render.c
+	../render/render_pixel.c
 
 .PHONY: all clean fclean re test perf ensure-mlx
 
@@ -57,7 +54,7 @@ fclean: clean
 
 re: fclean all
 
-# mlx 창이 뜨는지/이벤트 루프 도는지 확인 (실제 render_pixel + 카메라 이동 포함)
+# mlx 창이 뜨는지/이벤트 루프 도는지 확인 (실제 render_pixel 포함)
 MLX_LINUX_REPO = https://github.com/42Paris/minilibx-linux.git
 
 ensure-mlx:

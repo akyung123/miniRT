@@ -1,0 +1,10 @@
+# 화면 가장자리에 걸친 원. 범위 검사가 없으면 여기서 버퍼가 샙니다.
+
+img 0
+circle 0,0 50 0x00FF00FF
+px 0,0 => 0x00FF00FF
+px 60,0 => EMPTY
+
+img 0
+circle 799,599 50 0x00FF00FF
+px 799,599 => 0x00FF00FF
