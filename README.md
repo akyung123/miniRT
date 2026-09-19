@@ -49,7 +49,7 @@ can appear any number of times.
 
 ```bash
 valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes \
-	./miniRT scenes/example.rt
+	./miniRT scenes/valid/example.rt
 ```
 
 Only `definitely lost` / `indirectly lost` bytes count as real leaks —
@@ -59,9 +59,14 @@ once on the actual grading machine (the mlx symbols differ from macOS to
 Linux, so a suppression file must come from Linux to be useful there):
 
 ```bash
-valgrind --leak-check=full --show-leak-kinds=all --gen-suppressions=all \
-	./miniRT scenes/example.rt > /tmp/gen.supp
+valgrind --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all \
+	--gen-suppressions=all ./miniRT scenes/valid/example.rt > /tmp/gen.supp
 ```
+
+(`--errors-for-leak-kinds=all` is required — by default valgrind only counts
+`definite`/`possible` leaks as "errors", and `--gen-suppressions` only emits
+a suppression block per error. Without it, `still reachable` leaks — the
+mlx/X11 ones we actually want suppressed — produce no output at all.)
 
 From the generated output, keep only the suppression blocks whose stack
 trace has **no `srcs/` frames** (mlx/X11-only ones), save them as
@@ -69,7 +74,7 @@ trace has **no `srcs/` frames** (mlx/X11-only ones), save them as
 
 ```bash
 valgrind --leak-check=full --show-leak-kinds=all --suppressions=.valgrind.supp \
-	./miniRT scenes/example.rt
+	./miniRT scenes/valid/example.rt
 ```
 
 ## Tools
