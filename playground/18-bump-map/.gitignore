@@ -1,9 +1,0 @@
-*.o
-miniRT
-dump_ppm
-*.ppm
-.team/
-tests/parse_test
-tests/output_test
-tests/perf_test
-minilibx-linux/
