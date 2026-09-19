@@ -26,6 +26,7 @@ SRCS = srcs/main.c \
 	srcs/render/hit_scene.c \
 	srcs/render/lighting.c \
 	srcs/render/shadow.c \
+	srcs/render/bump_frame.c \
 	srcs/render/bump.c \
 	srcs/render/render_pixel.c
 OBJS = $(SRCS:.c=.o)
@@ -107,6 +108,7 @@ DUMP_SRCS = srcs/error.c \
 	srcs/render/hit_scene.c \
 	srcs/render/lighting.c \
 	srcs/render/shadow.c \
+	srcs/render/bump_frame.c \
 	srcs/render/bump.c \
 	srcs/render/render_pixel.c \
 	dump_ppm.c

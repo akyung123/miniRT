@@ -40,6 +40,13 @@ typedef struct s_hit
 	t_object	*obj;
 }	t_hit;
 
+/* 보너스: 범프가 쓰는 표면 좌표(uv)와 접선 기저(tb) 한 묶음 */
+typedef struct s_frame
+{
+	double	uv[2];
+	t_vec3	tb[2];
+}	t_frame;
+
 typedef struct s_cy
 {
 	t_vec3	center;
@@ -73,6 +80,8 @@ double	diffuse_factor(t_vec3 normal, t_vec3 light_dir);
 t_color	apply_ambient(t_color obj, t_color amb, double ratio);
 t_color	lighting(t_scene *scene, t_hit *rec);
 int		in_shadow(t_scene *scene, t_vec3 p);
+t_vec3	stable_helper(t_vec3 n);
+void	object_frame(t_object *obj, t_vec3 p, t_frame *f);
 void	apply_bump(t_object *obj, t_hit *rec);
 
 #endif

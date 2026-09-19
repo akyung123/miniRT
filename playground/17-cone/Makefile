@@ -24,6 +24,7 @@ SRCS = srcs/main.c \
 	srcs/render/cylinder.c \
 	srcs/render/cone.c \
 	srcs/render/normal.c \
+	srcs/render/hit_object.c \
 	srcs/render/hit_scene.c \
 	srcs/render/lighting.c \
 	srcs/render/shadow.c \
@@ -105,6 +106,7 @@ DUMP_SRCS = srcs/error.c \
 	srcs/render/cylinder.c \
 	srcs/render/cone.c \
 	srcs/render/normal.c \
+	srcs/render/hit_object.c \
 	srcs/render/hit_scene.c \
 	srcs/render/lighting.c \
 	srcs/render/shadow.c \

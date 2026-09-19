@@ -23,15 +23,12 @@ static double	side_t(t_ray r, t_co *co, double t)
 	return (t);
 }
 
-static double	hit_side(t_ray r, t_co *co)
+/* 옆면 = 꼭짓점에서 벌어지는 무한 원뿔과의 교차. at^2 + bt + c 의 계수. */
+static void	cone_quadratic(t_ray r, t_co *co, double abc[3])
 {
 	t_vec3	oc;
 	double	dv;
 	double	ov;
-	double	abc[3];
-	double	disc;
-	double	t;
-	double	best;
 
 	oc = vec3_sub(r.origin, co->apex);
 	dv = vec3_dot(r.direction, co->axis);
@@ -39,6 +36,16 @@ static double	hit_side(t_ray r, t_co *co)
 	abc[0] = dv * dv - co->cos2 * vec3_dot(r.direction, r.direction);
 	abc[1] = 2.0 * (ov * dv - co->cos2 * vec3_dot(r.direction, oc));
 	abc[2] = ov * ov - co->cos2 * vec3_dot(oc, oc);
+}
+
+static double	hit_side(t_ray r, t_co *co)
+{
+	double	abc[3];
+	double	disc;
+	double	t;
+	double	best;
+
+	cone_quadratic(r, co, abc);
 	if (fabs(abc[0]) < 1e-12)
 		return (-1.0);
 	disc = abc[1] * abc[1] - 4.0 * abc[0] * abc[2];
