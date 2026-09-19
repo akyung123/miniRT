@@ -1,10 +1,11 @@
 #include <stdio.h>
-#include "parsing.h"
+#include "parsing_bonus.h"
 
 int	main(int argc, char **argv)
 {
 	t_scene		scene;
 	t_object	*obj;
+	t_light		*light;
 
 	if (argc != 2)
 	{
@@ -21,10 +22,16 @@ int	main(int argc, char **argv)
 		scene.camera.position.z, scene.camera.orientation.x,
 		scene.camera.orientation.y, scene.camera.orientation.z,
 		scene.camera.fov);
-	printf("light: pos=(%.3f,%.3f,%.3f) brightness=%.3f color=(%.3f,%.3f,%.3f)\n",
-		scene.light.position.x, scene.light.position.y,
-		scene.light.position.z, scene.light.brightness,
-		scene.light.color.x, scene.light.color.y, scene.light.color.z);
+	light = scene.lights;
+	while (light)
+	{
+		printf("light: pos=(%.3f,%.3f,%.3f) brightness=%.3f "
+			"color=(%.3f,%.3f,%.3f)\n",
+			light->position.x, light->position.y, light->position.z,
+			light->brightness, light->color.x, light->color.y,
+			light->color.z);
+		light = light->next;
+	}
 	obj = scene.objects;
 	while (obj)
 	{
@@ -44,6 +51,20 @@ int	main(int argc, char **argv)
 				obj->data.cylinder.center.z, obj->data.cylinder.axis.x,
 				obj->data.cylinder.axis.y, obj->data.cylinder.axis.z,
 				obj->data.cylinder.diameter, obj->data.cylinder.height);
+		else if (obj->type == OBJ_CONE)
+			printf("cone: center=(%.3f,%.3f,%.3f) axis=(%.3f,%.3f,%.3f) "
+				"diameter=%.3f height=%.3f\n",
+				obj->data.cone.center.x, obj->data.cone.center.y,
+				obj->data.cone.center.z, obj->data.cone.axis.x,
+				obj->data.cone.axis.y, obj->data.cone.axis.z,
+				obj->data.cone.diameter, obj->data.cone.height);
+		if (obj->checker)
+			printf("  checker: scale=%.3f color=(%.3f,%.3f,%.3f)\n",
+				obj->checker_scale, obj->checker_color.x,
+				obj->checker_color.y, obj->checker_color.z);
+		if (obj->bump)
+			printf("  bump: freq=%.3f strength=%.3f\n",
+				obj->bump_freq, obj->bump_strength);
 		obj = obj->next;
 	}
 	free_scene(&scene);

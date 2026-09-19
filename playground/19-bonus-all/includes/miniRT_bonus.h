@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   miniRT.h                                           :+:      :+:    :+:   */
+/*   miniRT_bonus.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: seoykim <seoykim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/19 10:00:00 by seoykim           #+#    #+#             */
-/*   Updated: 2026/09/19 10:00:00 by seoykim          ###   ########.fr       */
+/*   Created: 2026/09/17 12:59:32 by seoykim           #+#    #+#             */
+/*   Updated: 2026/09/17 12:59:32 by seoykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MINIRT_H
-# define MINIRT_H
+#ifndef MINIRT_BONUS_H
+# define MINIRT_BONUS_H
 
 /* ---------- Image resolution (shared by input and rendering) ---------- */
 
@@ -57,18 +57,21 @@ typedef struct s_camera
 	double	fov;
 }	t_camera;
 
+/* 보너스: 광원을 연결 리스트로 만들어 L 줄을 여러 번 쓸 수 있게 한다. */
 typedef struct s_light
 {
-	t_vec3	position;
-	double	brightness;
-	t_color	color;
+	t_vec3			position;
+	double			brightness;
+	t_color			color;
+	struct s_light	*next;
 }	t_light;
 
 typedef enum e_object_type
 {
 	OBJ_SPHERE,
 	OBJ_PLANE,
-	OBJ_CYLINDER
+	OBJ_CYLINDER,
+	OBJ_CONE
 }	t_object_type;
 
 typedef struct s_sphere
@@ -94,17 +97,40 @@ typedef struct s_cylinder
 	t_color	color;
 }	t_cylinder;
 
+/* 보너스: 2차 곡면 하나 더 (원뿔). 필드 구성은 실린더와 같고,
+ * center 는 밑면과 꼭짓점의 중간(축 방향 중심)이다.
+ */
+typedef struct s_cone
+{
+	t_vec3	center;
+	t_vec3	axis;
+	double	diameter;
+	double	height;
+	t_color	color;
+}	t_cone;
+
 typedef union u_object_data
 {
 	t_sphere	sphere;
 	t_plane		plane;
 	t_cylinder	cylinder;
+	t_cone		cone;
 }	t_object_data;
 
+/* 보너스: 체크무늬(ck)와 절차적 범프(bp)는 도형 종류와 무관한
+ * 표면 속성이라 t_object 공통 자리에 둔다. 씬 파일에서 색 뒤에
+ * `ck <칸크기> <색>` / `bp <주기> <세기>` 를 순서 상관없이 붙인다.
+ */
 typedef struct s_object
 {
 	t_object_type	type;
 	t_object_data	data;
+	int				checker;
+	double			checker_scale;
+	t_color			checker_color;
+	int				bump;
+	double			bump_freq;
+	double			bump_strength;
 	struct s_object	*next;
 }	t_object;
 
@@ -112,7 +138,7 @@ typedef struct s_scene
 {
 	t_ambient	ambient;
 	t_camera	camera;
-	t_light		light;
+	t_light		*lights;
 	t_object	*objects;
 }	t_scene;
 

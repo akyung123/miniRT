@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   error.c                                            :+:      :+:    :+:   */
+/*   error_bonus.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: seoykim <seoykim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/19 10:00:00 by seoykim           #+#    #+#             */
-/*   Updated: 2026/09/19 10:00:00 by seoykim          ###   ########.fr       */
+/*   Created: 2026/09/17 12:59:32 by seoykim           #+#    #+#             */
+/*   Updated: 2026/09/17 12:59:32 by seoykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <unistd.h>
 #include <stdio.h>
-#include "miniRT.h"
+#include "miniRT_bonus.h"
 
 void	ft_error(const char *msg)
 {

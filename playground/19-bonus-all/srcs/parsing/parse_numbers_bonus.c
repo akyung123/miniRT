@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parse_numbers.c                                    :+:      :+:    :+:   */
+/*   parse_numbers_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: seoykim <seoykim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/19 10:00:00 by seoykim           #+#    #+#             */
-/*   Updated: 2026/09/19 10:00:00 by seoykim          ###   ########.fr       */
+/*   Created: 2026/09/17 12:59:32 by seoykim           #+#    #+#             */
+/*   Updated: 2026/09/17 12:59:32 by seoykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <math.h>
 #include "libft.h"
-#include "parsing.h"
+#include "parsing_bonus.h"
 
 int	parse_vec3(const char *str, t_vec3 *out)
 {

@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parse_modifiers.c                                  :+:      :+:    :+:   */
+/*   parse_modifiers_bonus.c                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: akkim <akkim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,7 +12,7 @@
 
 #include <stdlib.h>
 #include "libft.h"
-#include "parsing.h"
+#include "parsing_bonus.h"
 
 /* 보너스 표면 옵션은 도형 줄 끝에 3토큰 단위로 붙는다.
  *   ck <칸 크기> <두 번째 색>     체크무늬

@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   vec3_ops.c                                         :+:      :+:    :+:   */
+/*   checkerboard_bonus.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: akkim <akkim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,49 +10,22 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "miniRT.h"
+#include "render_bonus.h"
 
-t_vec3	vec3_add(t_vec3 a, t_vec3 b)
+/* 보너스: 색 교란(체크무늬).
+ * 표면 좌표 (u, v) 를 칸 크기로 나눠 내림한 뒤, 두 칸 번호의 합이
+ * 홀수면 두 번째 색으로 칠한다. 체스판이 만들어지는 이유가 이것이다.
+ */
+t_color	apply_checker(t_object *obj, t_hit *rec)
 {
-	t_vec3	r;
+	t_uv	uv;
+	int		iu;
+	int		iv;
 
-	r.x = a.x + b.x;
-	r.y = a.y + b.y;
-	r.z = a.z + b.z;
-	return (r);
-}
-
-t_vec3	vec3_sub(t_vec3 a, t_vec3 b)
-{
-	t_vec3	r;
-
-	r.x = a.x - b.x;
-	r.y = a.y - b.y;
-	r.z = a.z - b.z;
-	return (r);
-}
-
-t_vec3	vec3_scale(t_vec3 v, double t)
-{
-	t_vec3	r;
-
-	r.x = v.x * t;
-	r.y = v.y * t;
-	r.z = v.z * t;
-	return (r);
-}
-
-t_vec3	vec3_negate(t_vec3 v)
-{
-	return (vec3_scale(v, -1.0));
-}
-
-t_vec3	vec3_mul(t_vec3 a, t_vec3 b)
-{
-	t_vec3	r;
-
-	r.x = a.x * b.x;
-	r.y = a.y * b.y;
-	r.z = a.z * b.z;
-	return (r);
+	uv = object_uv(obj, rec->point);
+	iu = (int)floor(uv.u / obj->checker_scale);
+	iv = (int)floor(uv.v / obj->checker_scale);
+	if ((iu + iv) & 1)
+		return (obj->checker_color);
+	return (rec->color);
 }

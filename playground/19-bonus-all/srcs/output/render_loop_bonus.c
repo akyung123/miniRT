@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   render_loop.c                                      :+:      :+:    :+:   */
+/*   render_loop_bonus.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: seoykim <seoykim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/19 10:00:00 by seoykim           #+#    #+#             */
-/*   Updated: 2026/09/19 10:00:00 by seoykim          ###   ########.fr       */
+/*   Created: 2026/09/17 12:59:32 by seoykim           #+#    #+#             */
+/*   Updated: 2026/09/17 12:59:32 by seoykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "mlx.h"
-#include "output.h"
+#include "output_bonus.h"
 
 static void	put_pixel(t_mlx *mlx, int x, int y, int color)
 {

@@ -1,21 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   cleanup.c                                          :+:      :+:    :+:   */
+/*   cleanup_bonus.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: seoykim <seoykim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/19 10:00:00 by seoykim           #+#    #+#             */
-/*   Updated: 2026/09/19 10:00:00 by seoykim          ###   ########.fr       */
+/*   Created: 2026/09/17 12:59:32 by seoykim           #+#    #+#             */
+/*   Updated: 2026/09/17 12:59:32 by seoykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
 #include "mlx.h"
-#include "output.h"
+#include "output_bonus.h"
 
-/* macOS mlx 에는 mlx_destroy_display 가 없다. 리눅스에서는 이걸 안
- * 부르면 X 연결이 그대로 남아 valgrind 가 누수로 잡는다.
+/* macOS mlx 에는 mlx_destroy_display 가 없다. 리눅스에서는 이걸
+ * 안 부르면 X 연결이 그대로 남아 valgrind 가 누수로 잡는다.
  */
 #ifndef __APPLE__
 

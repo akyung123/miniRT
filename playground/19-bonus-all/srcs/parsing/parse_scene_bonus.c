@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parse_scene.c                                      :+:      :+:    :+:   */
+/*   parse_scene_bonus.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: seoykim <seoykim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/19 10:00:00 by seoykim           #+#    #+#             */
-/*   Updated: 2026/09/19 10:00:00 by seoykim          ###   ########.fr       */
+/*   Created: 2026/09/17 12:59:32 by seoykim           #+#    #+#             */
+/*   Updated: 2026/09/17 12:59:32 by seoykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include "libft.h"
 #include "get_next_line.h"
-#include "parsing.h"
+#include "parsing_bonus.h"
 
 int	parse_line(const char *line, t_scene *scene, t_parse_flags *flags)
 {
@@ -37,6 +37,8 @@ int	parse_line(const char *line, t_scene *scene, t_parse_flags *flags)
 		ret = parse_plane(tokens, scene);
 	else if (!ft_strcmp(tokens[0], "cy"))
 		ret = parse_cylinder(tokens, scene);
+	else if (!ft_strcmp(tokens[0], "co"))
+		ret = parse_cone(tokens, scene);
 	else
 		ret = 0;
 	free_tokens(tokens);
@@ -92,6 +94,7 @@ int	parse_scene(const char *path, t_scene *scene)
 	t_parse_flags	flags;
 
 	scene->objects = NULL;
+	scene->lights = NULL;
 	flags.has_ambient = 0;
 	flags.has_camera = 0;
 	flags.has_light = 0;

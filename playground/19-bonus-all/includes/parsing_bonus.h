@@ -1,19 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parsing.h                                          :+:      :+:    :+:   */
+/*   parsing_bonus.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: seoykim <seoykim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/19 10:00:00 by seoykim           #+#    #+#             */
-/*   Updated: 2026/09/19 10:00:00 by seoykim          ###   ########.fr       */
+/*   Created: 2026/09/17 12:59:32 by seoykim           #+#    #+#             */
+/*   Updated: 2026/09/17 12:59:32 by seoykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PARSING_H
-# define PARSING_H
+#ifndef PARSING_BONUS_H
+# define PARSING_BONUS_H
 
-# include "miniRT.h"
+# include "miniRT_bonus.h"
 
 /* ---------- String utils (only what's missing from libft) ---------- */
 
@@ -37,6 +37,13 @@ int		parse_light(char **tokens, t_scene *scene, t_parse_flags *flags);
 int		parse_sphere(char **tokens, t_scene *scene);
 int		parse_plane(char **tokens, t_scene *scene);
 int		parse_cylinder(char **tokens, t_scene *scene);
+int		parse_cone(char **tokens, t_scene *scene);
 void	add_object(t_scene *scene, t_object *obj);
+
+/* ---------- 보너스 표면 옵션 (ck 체크무늬 / bp 범프) ---------- */
+
+t_object	*new_object(t_object_type type);
+int		count_ok(char **tokens, int base);
+int		parse_modifiers(char **tokens, int i, t_object *obj);
 
 #endif

@@ -1,16 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parse_elements.c                                   :+:      :+:    :+:   */
+/*   parse_elements_bonus.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: seoykim <seoykim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/19 10:00:00 by seoykim           #+#    #+#             */
-/*   Updated: 2026/09/19 10:00:00 by seoykim          ###   ########.fr       */
+/*   Created: 2026/09/17 12:59:32 by seoykim           #+#    #+#             */
+/*   Updated: 2026/09/17 12:59:32 by seoykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "parsing.h"
+#include "parsing_bonus.h"
+#include <stdlib.h>
 
 int	parse_ambient(char **tokens, t_scene *scene, t_parse_flags *flags)
 {
@@ -46,19 +47,40 @@ int	parse_camera(char **tokens, t_scene *scene, t_parse_flags *flags)
 	return (1);
 }
 
+static void	add_light(t_scene *scene, t_light *light)
+{
+	t_light	*cur;
+
+	light->next = NULL;
+	if (!scene->lights)
+	{
+		scene->lights = light;
+		return ;
+	}
+	cur = scene->lights;
+	while (cur->next)
+		cur = cur->next;
+	cur->next = light;
+}
+
 int	parse_light(char **tokens, t_scene *scene, t_parse_flags *flags)
 {
-	int	ok;
+	t_light	*light;
+	int		ok;
 
-	if (flags->has_light || count_tokens(tokens) != 4)
+	if (count_tokens(tokens) != 4)
 		return (0);
-	if (!parse_vec3(tokens[1], &scene->light.position))
+	light = malloc(sizeof(t_light));
+	if (!light)
 		return (0);
-	scene->light.brightness = str_to_double(tokens[2], &ok);
-	if (!ok || scene->light.brightness < 0.0 || scene->light.brightness > 1.0)
-		return (0);
-	if (!parse_color(tokens[3], &scene->light.color))
-		return (0);
+	if (!parse_vec3(tokens[1], &light->position))
+		return (free(light), 0);
+	light->brightness = str_to_double(tokens[2], &ok);
+	if (!ok || light->brightness < 0.0 || light->brightness > 1.0)
+		return (free(light), 0);
+	if (!parse_color(tokens[3], &light->color))
+		return (free(light), 0);
+	add_light(scene, light);
 	flags->has_light = 1;
 	return (1);
 }

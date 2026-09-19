@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   render_pixel.c                                     :+:      :+:    :+:   */
+/*   plane_bonus.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: akkim <akkim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,27 +10,18 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "render.h"
+#include "render_bonus.h"
 
-static t_color	sky(t_ray r)
+double	hit_plane(t_ray r, t_plane *pl, t_range range)
 {
-	t_color	c;
+	double	denom;
 	double	t;
 
-	t = 0.5 * (r.direction.y + 1.0);
-	c.x = 1.0 * (1.0 - t) + 0.5 * t;
-	c.y = 1.0 * (1.0 - t) + 0.7 * t;
-	c.z = 1.0 * (1.0 - t) + 1.0 * t;
-	return (c);
-}
-
-t_color	render_pixel(t_scene *scene, int x, int y)
-{
-	t_ray	r;
-	t_hit	rec;
-
-	r = camera_ray(&scene->camera, x, y);
-	if (!hit_scene(scene, r, T_MAX, &rec))
-		return (sky(r));
-	return (vec3_clamp(lighting(scene, &rec), 0.0, 1.0));
+	denom = vec3_dot(pl->normal, r.direction);
+	if (fabs(denom) < 1e-6)
+		return (-1.0);
+	t = vec3_dot(pl->normal, vec3_sub(pl->point, r.origin)) / denom;
+	if (t <= range.min || t >= range.max)
+		return (-1.0);
+	return (t);
 }

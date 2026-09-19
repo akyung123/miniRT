@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   render_pixel.c                                     :+:      :+:    :+:   */
+/*   render_pixel_bonus.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: akkim <akkim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "render.h"
+#include "render_bonus.h"
 
 static t_color	sky(t_ray r)
 {
@@ -28,9 +28,11 @@ t_color	render_pixel(t_scene *scene, int x, int y)
 {
 	t_ray	r;
 	t_hit	rec;
+	t_vec3	view_dir;
 
 	r = camera_ray(&scene->camera, x, y);
 	if (!hit_scene(scene, r, T_MAX, &rec))
 		return (sky(r));
-	return (vec3_clamp(lighting(scene, &rec), 0.0, 1.0));
+	view_dir = vec3_normalize(vec3_sub(scene->camera.position, rec.point));
+	return (vec3_clamp(lighting(scene, &rec, view_dir), 0.0, 1.0));
 }

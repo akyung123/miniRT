@@ -1,20 +1,21 @@
 #!/bin/sh
-# scenes/valid, scenes/invalid를 전부 돌려서 parse_scene이 기대한 대로
-# 성공/실패하는지 확인하는 회귀 테스트 스크립트. 제출 대상 아님, mlx 불필요.
-# 사용법: srcs/parsing 에서 `make test` 하거나, 이 스크립트를 직접 실행.
+# 보너스 파서 회귀 테스트. mandatory 씬 + 보너스 문법 씬을 전부 돌린다.
+# (보너스는 mandatory 씬도 전부 받아야 한다.)
+# 사용법: make dump_ppm_bonus 뒤 이 스크립트 실행. mlx 불필요.
 
 cd "$(dirname "$0")/.." || exit 1
-BIN=tests/parse_test
+BIN=tests/parse_test_bonus
 
 if [ ! -x "$BIN" ]; then
-	echo "빌드 필요: (cd srcs/parsing && make test)"
+	echo "빌드 필요: cc ... tests/parse_test_bonus.c ... -o tests/parse_test_bonus"
 	exit 1
 fi
 
 pass=0
 fail=0
 
-for f in scenes/valid/*.rt; do
+for f in scenes/valid/*.rt scenes/bonus/valid/*.rt scenes/bonus/*.rt; do
+	[ -f "$f" ] || continue
 	if "$BIN" "$f" >/dev/null 2>&1; then
 		echo "OK   (valid)   $f"
 		pass=$((pass + 1))
@@ -24,7 +25,8 @@ for f in scenes/valid/*.rt; do
 	fi
 done
 
-for f in scenes/invalid/*.rt; do
+for f in scenes/invalid/*.rt scenes/bonus/invalid/*.rt; do
+	[ -f "$f" ] || continue
 	if "$BIN" "$f" >/dev/null 2>&1; then
 		echo "FAIL (invalid) $f  <- 실패해야 하는데 성공함"
 		fail=$((fail + 1))

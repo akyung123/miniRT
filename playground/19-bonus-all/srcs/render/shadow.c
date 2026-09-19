@@ -24,14 +24,14 @@ static t_ray	shadow_ray(t_vec3 p, t_vec3 light_pos, double *dist)
 	return (r);
 }
 
-int	in_shadow(t_scene *scene, t_vec3 p, t_vec3 light_pos)
+int	in_shadow(t_scene *scene, t_vec3 p)
 {
 	t_ray		r;
 	t_object	*obj;
 	t_hit		tmp;
 	double		dist;
 
-	r = shadow_ray(p, light_pos, &dist);
+	r = shadow_ray(p, scene->light.position, &dist);
 	obj = scene->objects;
 	while (obj)
 	{

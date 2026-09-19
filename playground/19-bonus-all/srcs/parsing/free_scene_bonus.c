@@ -1,22 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   free_scene.c                                       :+:      :+:    :+:   */
+/*   free_scene_bonus.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: seoykim <seoykim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/19 10:00:00 by seoykim           #+#    #+#             */
-/*   Updated: 2026/09/19 10:00:00 by seoykim          ###   ########.fr       */
+/*   Created: 2026/09/17 12:59:32 by seoykim           #+#    #+#             */
+/*   Updated: 2026/09/17 12:59:32 by seoykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
-#include "parsing.h"
+#include "parsing_bonus.h"
 
 void	free_scene(t_scene *scene)
 {
 	t_object	*cur;
 	t_object	*next;
+	t_light		*light;
+	t_light		*next_light;
 
 	if (!scene)
 		return ;
@@ -28,4 +30,12 @@ void	free_scene(t_scene *scene)
 		cur = next;
 	}
 	scene->objects = NULL;
+	light = scene->lights;
+	while (light)
+	{
+		next_light = light->next;
+		free(light);
+		light = next_light;
+	}
+	scene->lights = NULL;
 }

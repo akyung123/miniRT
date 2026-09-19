@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   render_pixel.c                                     :+:      :+:    :+:   */
+/*   shadow_bonus.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: akkim <akkim@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,27 +10,34 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "render.h"
+#include "render_bonus.h"
 
-static t_color	sky(t_ray r)
-{
-	t_color	c;
-	double	t;
-
-	t = 0.5 * (r.direction.y + 1.0);
-	c.x = 1.0 * (1.0 - t) + 0.5 * t;
-	c.y = 1.0 * (1.0 - t) + 0.7 * t;
-	c.z = 1.0 * (1.0 - t) + 1.0 * t;
-	return (c);
-}
-
-t_color	render_pixel(t_scene *scene, int x, int y)
+static t_ray	shadow_ray(t_vec3 p, t_vec3 light_pos, double *dist)
 {
 	t_ray	r;
-	t_hit	rec;
+	t_vec3	to_light;
 
-	r = camera_ray(&scene->camera, x, y);
-	if (!hit_scene(scene, r, T_MAX, &rec))
-		return (sky(r));
-	return (vec3_clamp(lighting(scene, &rec), 0.0, 1.0));
+	to_light = vec3_sub(light_pos, p);
+	*dist = vec3_length(to_light);
+	r.origin = p;
+	r.direction = vec3_normalize(to_light);
+	return (r);
+}
+
+int	in_shadow(t_scene *scene, t_vec3 p, t_vec3 light_pos)
+{
+	t_ray		r;
+	t_object	*obj;
+	t_hit		tmp;
+	double		dist;
+
+	r = shadow_ray(p, light_pos, &dist);
+	obj = scene->objects;
+	while (obj)
+	{
+		if (hit_object(obj, r, dist - T_MIN, &tmp))
+			return (1);
+		obj = obj->next;
+	}
+	return (0);
 }

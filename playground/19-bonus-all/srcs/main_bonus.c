@@ -1,19 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   main_bonus.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: seoykim <seoykim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/09/19 10:00:00 by seoykim           #+#    #+#             */
-/*   Updated: 2026/09/19 10:00:00 by seoykim          ###   ########.fr       */
+/*   Created: 2026/09/17 12:59:32 by seoykim           #+#    #+#             */
+/*   Updated: 2026/09/17 12:59:32 by seoykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
 #include "mlx.h"
-#include "miniRT.h"
-#include "output.h"
+#include "miniRT_bonus.h"
+#include "output_bonus.h"
 
 static int	has_rt_extension(const char *path)
 {
@@ -36,7 +36,7 @@ static int	check_args(int argc, char **argv)
 {
 	if (argc != 2)
 	{
-		ft_error("usage: ./miniRT <scene>.rt");
+		ft_error("usage: ./miniRT_bonus <scene>.rt");
 		return (0);
 	}
 	if (!has_rt_extension(argv[1]))
@@ -61,8 +61,7 @@ int	main(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 	render_all(&minirt);
-	mlx_hook(minirt.mlx.win_ptr, DESTROY_NOTIFY, CLOSE_MASK, close_hook,
-		&minirt);
+	mlx_hook(minirt.mlx.win_ptr, 17, CLOSE_MASK, close_hook, &minirt);
 	mlx_key_hook(minirt.mlx.win_ptr, key_hook, &minirt);
 	mlx_expose_hook(minirt.mlx.win_ptr, expose_hook, &minirt);
 	mlx_loop(minirt.mlx.mlx_ptr);
