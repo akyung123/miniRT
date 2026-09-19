@@ -5,6 +5,8 @@
 *.dSYM/
 miniRT
 miniRT_bonus
+.build_mandatory
+.build_bonus
 
 # minilibx 압축 파일 / subject PDF / 평가지 등 참고자료 (리포에 안 올림)
 minilibx-linux.tar

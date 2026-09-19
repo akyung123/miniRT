@@ -1,5 +1,4 @@
 NAME = miniRT
-NAME_BONUS = miniRT_bonus
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -g
 
@@ -70,6 +69,12 @@ BONUS_SRCS = srcs/main_bonus.c \
 OBJS = $(SRCS:.c=.o)
 BONUS_OBJS = $(BONUS_SRCS:.c=.o)
 
+# make 와 make bonus 가 같은 miniRT 를 만들기 때문에, 마지막에 어느 쪽을
+# 빌드했는지 스탬프로 남긴다. 이게 없으면 make -> make bonus 로 넘어갈 때
+# miniRT 가 이미 최신이라 다시 링크되지 않는다.
+STAMP = .build_mandatory
+STAMP_BONUS = .build_bonus
+
 LIBFT_DIR = ./libft
 LIBFT = $(LIBFT_DIR)/libft.a
 
@@ -89,10 +94,10 @@ INCLUDE = -I./includes -I$(MLX_DIR) -I./libft
 LIBS = -L$(LIBFT_DIR) -L$(MLX_DIR) -lft $(MLX_LIBS) -lm
 
 .PHONY : all
-all: $(LIBFT) $(MLX) $(NAME)
+all: $(LIBFT) $(MLX) $(STAMP)
 
 .PHONY : bonus
-bonus: $(LIBFT) $(MLX) $(NAME_BONUS)
+bonus: $(LIBFT) $(MLX) $(STAMP_BONUS)
 
 $(LIBFT):
 	make -C $(LIBFT_DIR)
@@ -106,21 +111,25 @@ $(MLX):
 %.o: %.c
 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
-$(NAME): $(OBJS)
+$(STAMP): $(OBJS)
 	$(CC) $(CFLAGS) $(INCLUDE) $(OBJS) $(LIBS) -o $(NAME)
+	@rm -f $(STAMP_BONUS)
+	@touch $(STAMP)
 
-$(NAME_BONUS): $(BONUS_OBJS)
-	$(CC) $(CFLAGS) $(INCLUDE) $(BONUS_OBJS) $(LIBS) -o $(NAME_BONUS)
+$(STAMP_BONUS): $(BONUS_OBJS)
+	$(CC) $(CFLAGS) $(INCLUDE) $(BONUS_OBJS) $(LIBS) -o $(NAME)
+	@rm -f $(STAMP)
+	@touch $(STAMP_BONUS)
 
 .PHONY: clean
 clean:
-	rm -f $(OBJS) $(BONUS_OBJS)
+	rm -f $(OBJS) $(BONUS_OBJS) $(STAMP) $(STAMP_BONUS)
 	make -C $(LIBFT_DIR) clean
 	@if [ -d "$(MLX_DIR)" ]; then make -C $(MLX_DIR) clean; fi
 
 .PHONY: fclean
 fclean: clean
-	rm -f $(NAME) $(NAME_BONUS)
+	rm -f $(NAME)
 	make -C $(LIBFT_DIR) fclean
 
 .PHONY: re

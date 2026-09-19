@@ -13,11 +13,15 @@ file, ray-traces it, and displays the result in a window.
 ## Build
 
 ```bash
-make        # build (fetches/builds libft and minilibx as needed)
+make        # build miniRT (mandatory)
+make bonus  # build miniRT with the bonus features
 make clean  # remove object files
 make fclean # remove object files and the binary
 make re     # fclean + build
 ```
+
+Both rules produce the same `miniRT` binary — `make bonus` links the
+`_bonus` sources instead. Switching between the two rebuilds the binary.
 
 Builds on both macOS (minilibx_macos_opengl) and Linux (minilibx-linux) —
 the Makefile picks the right minilibx variant via `uname`.
@@ -41,6 +45,22 @@ the Makefile picks the right minilibx variant via `uname`.
 | `sp` | Sphere | `sp <center x,y,z> <diameter> <R,G,B>` |
 | `pl` | Plane | `pl <point x,y,z> <normal x,y,z> <R,G,B>` |
 | `cy` | Cylinder | `cy <center x,y,z> <axis x,y,z> <diameter> <height> <R,G,B>` |
+
+The light's `<R,G,B>` is parsed and validated but unused in the mandatory
+part, as the subject specifies — the light is always white.
+
+### Bonus (`make bonus`)
+
+| Feature | Format |
+|---|---|
+| Specular (Phong) | always on |
+| Multiple lights | repeat `L` lines; each light's `<R,G,B>` is used |
+| Cone | `co <center x,y,z> <axis x,y,z> <diameter> <height> <R,G,B>` |
+| Checkerboard | append `ck <square size> <R,G,B>` to `sp`/`pl`/`cy`/`co` |
+| Bump map | append `bp <frequency> <strength>` to `sp`/`pl`/`cy`/`co` |
+
+`ck` and `bp` are optional, may both be present, and their order does not
+matter. Demo scenes are in `scenes/bonus/`.
 
 Each scene needs exactly one `A`, one `C`, and one `L`; objects (`sp`/`pl`/`cy`)
 can appear any number of times.
