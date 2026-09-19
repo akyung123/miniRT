@@ -36,7 +36,7 @@ static int	check_args(int argc, char **argv)
 {
 	if (argc != 2)
 	{
-		ft_error("usage: ./miniRT_bonus <scene>.rt");
+		ft_error("usage: ./miniRT <scene>.rt");
 		return (0);
 	}
 	if (!has_rt_extension(argv[1]))
