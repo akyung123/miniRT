@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   bump_bonus.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akkim <akkim@student.42.fr>                +#+  +:+       +#+        */
+/*   By: akkim <akkim@student.42gyeongsan.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 10:00:00 by akkim             #+#    #+#             */
 /*   Updated: 2026/09/19 10:00:00 by akkim            ###   ########.fr       */

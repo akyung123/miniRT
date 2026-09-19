@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   normal.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: akkim <akkim@student.42.fr>                +#+  +:+       +#+        */
+/*   By: akkim <akkim@student.42gyeongsan.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/17 19:34:10 by akkim             #+#    #+#             */
 /*   Updated: 2026/09/17 19:34:10 by akkim            ###   ########.fr       */

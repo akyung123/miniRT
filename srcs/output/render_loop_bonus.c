@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   render_loop_bonus.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seoykim <seoykim@student.42.fr>            +#+  +:+       +#+        */
+/*   By: seoykim <seoykim@student.42gyeongsan.kr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/17 12:59:32 by seoykim           #+#    #+#             */
 /*   Updated: 2026/09/17 12:59:32 by seoykim          ###   ########.fr       */

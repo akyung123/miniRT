@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   miniRT.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seoykim <seoykim@student.42.fr>            +#+  +:+       +#+        */
+/*   By: seoykim <seoykim@student.42gyeongsan.kr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 10:00:00 by seoykim           #+#    #+#             */
 /*   Updated: 2026/09/19 10:00:00 by seoykim          ###   ########.fr       */
