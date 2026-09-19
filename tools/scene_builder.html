@@ -558,8 +558,8 @@
     const forward = norm(cameraDirection(cam));
     let worldUp = [0, 1, 0];
     if (Math.abs(dot(forward, worldUp)) > 0.999) worldUp = [0, 0, 1];
-    const right = norm(cross(worldUp, forward));
-    const up = cross(forward, right);
+    const right = norm(cross(forward, worldUp));
+    const up = cross(right, forward);
     return { pos: cam.pos, forward, right, up };
   }
 
@@ -1053,7 +1053,7 @@
   function groundBasis(cam) {
     const yaw = (cam.yaw * Math.PI) / 180;
     const fwd = [Math.sin(yaw), 0, Math.cos(yaw)];
-    const right = [Math.cos(yaw), 0, -Math.sin(yaw)];
+    const right = [-Math.cos(yaw), 0, Math.sin(yaw)];
     return { fwd, right };
   }
 
