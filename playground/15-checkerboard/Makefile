@@ -48,6 +48,9 @@ INCLUDE = -I./includes -I$(MLX_DIR) -I./libft
 
 LIBS = -L$(LIBFT_DIR) -L$(MLX_DIR) -lft $(MLX_LIBS) -lm
 
+MLX_LINUX_ROOT = ../../minilibx-linux
+MLX_LINUX_REPO = https://github.com/42Paris/minilibx-linux.git
+
 .PHONY : all
 all: $(LIBFT) $(MLX) $(NAME)
 
@@ -55,6 +58,14 @@ $(LIBFT):
 	make -C $(LIBFT_DIR)
 
 $(MLX):
+	@if [ "$(UNAME_S)" != "Darwin" ] && [ ! -d "$(MLX_DIR)" ]; then \
+		if [ -L "$(MLX_DIR)" ]; then rm -f "$(MLX_DIR)"; fi; \
+		if [ -d "$(MLX_LINUX_ROOT)" ]; then \
+			ln -sfn "$(MLX_LINUX_ROOT)" "$(MLX_DIR)"; \
+		else \
+			git clone --depth 1 $(MLX_LINUX_REPO) "$(MLX_DIR)"; \
+		fi; \
+	fi
 	make -C $(MLX_DIR)
 
 %.o: %.c
@@ -67,7 +78,7 @@ $(NAME): $(OBJS)
 clean:
 	rm -f $(OBJS)
 	make -C $(LIBFT_DIR) clean
-	make -C $(MLX_DIR) clean
+	@if [ -d "$(MLX_DIR)" ]; then make -C $(MLX_DIR) clean; fi
 
 .PHONY: fclean
 fclean: clean

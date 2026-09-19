@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: seoykim <seoykim@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/09/17 12:59:32 by seoykim           #+#    #+#             */
+/*   Updated: 2026/09/17 12:59:32 by seoykim          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdlib.h>
 #include "mlx.h"
 #include "miniRT.h"
@@ -49,7 +61,7 @@ int	main(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 	render_all(&minirt);
-	mlx_hook(minirt.mlx.win_ptr, 17, 0, close_hook, &minirt);
+	mlx_hook(minirt.mlx.win_ptr, 17, CLOSE_MASK, close_hook, &minirt);
 	mlx_key_hook(minirt.mlx.win_ptr, key_hook, &minirt);
 	mlx_expose_hook(minirt.mlx.win_ptr, expose_hook, &minirt);
 	mlx_loop(minirt.mlx.mlx_ptr);
