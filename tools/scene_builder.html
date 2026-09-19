@@ -1048,6 +1048,7 @@
       else if (type === "pl") o = { ...base, type, point: [0, 0, -10], normal: [0, 1, 0], color: "#8fe85f" };
       else o = { ...base, type, center: [0, 0, 20], axis: [0, 1, 0], diameter: 8, height: 16, color: "#a05fe8" };
       state.objects.push(o);
+      state.selectedId = o.id;
       renderObjList();
       refreshAll();
     });
@@ -1055,16 +1056,23 @@
 
   document.getElementById("copy-btn").addEventListener("click", async () => {
     const ta = document.getElementById("rt-output");
+    const btn = document.getElementById("copy-btn");
+    const original = btn.textContent;
+    let copied = false;
     ta.select();
     try {
       await navigator.clipboard.writeText(ta.value);
-      const btn = document.getElementById("copy-btn");
-      const original = btn.textContent;
-      btn.textContent = "복사됨";
-      setTimeout(() => (btn.textContent = original), 1200);
+      copied = true;
     } catch (e) {
-      /* clipboard 권한이 없으면 textarea가 이미 선택된 상태라 手동 복사 가능 */
+      /* file:// 등 secure context가 아니면 Clipboard API가 막힘 - 구식 방법으로 재시도 */
+      try {
+        copied = document.execCommand("copy");
+      } catch (e2) {
+        copied = false;
+      }
     }
+    btn.textContent = copied ? "복사됨" : "복사 실패 (직접 Cmd+C)";
+    setTimeout(() => (btn.textContent = original), 1200);
   });
 
   /* ---------- control-target label ---------- */
