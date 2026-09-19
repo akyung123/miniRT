@@ -60,7 +60,7 @@ Linux, so a suppression file must come from Linux to be useful there):
 
 ```bash
 valgrind --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all \
-	--gen-suppressions=all ./miniRT scenes/valid/example.rt > /tmp/gen.supp
+	--gen-suppressions=all ./miniRT scenes/valid/example.rt 2> /tmp/gen.supp
 ```
 
 (`--errors-for-leak-kinds=all` is required — by default valgrind only counts
