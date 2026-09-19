@@ -1,21 +1,34 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parsing.h                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: seoykim <seoykim@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/09/19 10:00:00 by seoykim           #+#    #+#             */
+/*   Updated: 2026/09/19 10:00:00 by seoykim          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef PARSING_H
 # define PARSING_H
 
 # include "miniRT.h"
 
-/* ---------- 문자열 유틸 (libft에 없는 것만 자체 구현) ---------- */
+/* ---------- String utils (only what's missing from libft) ---------- */
 
 void	free_tokens(char **tokens);
 int		count_tokens(char **tokens);
+int		has_rt_extension(const char *path);
 
-/* ---------- 숫자 / 벡터 / 색상 파싱 ---------- */
+/* ---------- Number / vector / color parsing ---------- */
 
 double	str_to_double(const char *str, int *ok);
 int		parse_vec3(const char *str, t_vec3 *out);
 int		parse_color(const char *str, t_color *out);
 int		normalize_direction(t_vec3 *v);
 
-/* ---------- 라인 디스패치 / 요소별 파서 ---------- */
+/* ---------- Line dispatch / per-element parsers ---------- */
 
 int		parse_line(const char *line, t_scene *scene, t_parse_flags *flags);
 int		parse_ambient(char **tokens, t_scene *scene, t_parse_flags *flags);
