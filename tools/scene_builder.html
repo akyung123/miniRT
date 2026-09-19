@@ -166,6 +166,25 @@
     color: var(--text-dim);
   }
 
+  .group-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .light-select {
+    font-size: 10.5px;
+    padding: 2px 8px;
+  }
+
+  .light-select.selected {
+    background: var(--accent);
+    color: var(--accent-text);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
   .field-row {
     display: flex;
     align-items: center;
@@ -288,6 +307,7 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
+    cursor: pointer;
   }
 
   .obj-card-head {
@@ -333,11 +353,6 @@
 
   .obj-card-head .rm:hover {
     color: var(--danger);
-  }
-
-  .obj-card-head .name-btn {
-    border: none;
-    cursor: pointer;
   }
 
   .obj-card.selected {
@@ -456,7 +471,10 @@
     </section>
 
     <section class="group">
-      <div class="group-title">Light</div>
+      <div class="group-title-row">
+        <div class="group-title">Light</div>
+        <button id="light-select-btn" class="light-select" title="클릭해서 선택 (선택 후 WASD/방향키로 이동, Q/E로 높이)">선택</button>
+      </div>
       <div class="field-row"><label>pos x</label><input id="l-px" type="number" step="1" value="25" /></div>
       <div class="field-row"><label>pos y</label><input id="l-py" type="number" step="1" value="35" /></div>
       <div class="field-row"><label>pos z</label><input id="l-pz" type="number" step="1" value="-25" /></div>
@@ -562,15 +580,17 @@
     const forward = norm(cameraDirection(cam));
     let worldUp = [0, 1, 0];
     if (Math.abs(dot(forward, worldUp)) > 0.999) worldUp = [0, 0, 1];
-    const right = norm(cross(worldUp, forward));
-    const up = cross(forward, right);
+    const right = norm(cross(forward, worldUp));
+    const up = cross(right, forward);
     return { pos: cam.pos, forward, right, up };
   }
+
+  const NEAR_CLIP = 1;
 
   function project(view, p, w, h, focal) {
     const rel = sub(p, view.pos);
     const vz = dot(rel, view.forward);
-    if (vz < 0.05) return null;
+    if (vz < NEAR_CLIP) return null;
     const vx = dot(rel, view.right);
     const vy = dot(rel, view.up);
     return [w / 2 + (vx / vz) * focal, h / 2 - (vy / vz) * focal, vz];
@@ -668,9 +688,23 @@
     render();
   }
 
+  function clipNear(view, p1, p2) {
+    const vz1 = dot(sub(p1, view.pos), view.forward);
+    const vz2 = dot(sub(p2, view.pos), view.forward);
+    const in1 = vz1 >= NEAR_CLIP;
+    const in2 = vz2 >= NEAR_CLIP;
+    if (!in1 && !in2) return null;
+    if (in1 && in2) return [p1, p2];
+    const t = (NEAR_CLIP - vz1) / (vz2 - vz1);
+    const mid = add(p1, scl(sub(p2, p1), t));
+    return in1 ? [p1, mid] : [mid, p2];
+  }
+
   function drawSegment(view, p1, p2, w, h, focal, color, lineWidth) {
-    const s1 = project(view, p1, w, h, focal);
-    const s2 = project(view, p2, w, h, focal);
+    const clipped = clipNear(view, p1, p2);
+    if (!clipped) return;
+    const s1 = project(view, clipped[0], w, h, focal);
+    const s2 = project(view, clipped[1], w, h, focal);
     if (!s1 || !s2) return;
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth || 1;
@@ -759,10 +793,19 @@
     const p = state.light.pos;
     const s = project(view, p, w, h, focal);
     if (!s) return;
+    const selected = state.selectedId === "light";
+    const r = selected ? 6 : 4;
     ctx.fillStyle = "#e8973a";
     ctx.beginPath();
-    ctx.arc(s[0], s[1], 4, 0, Math.PI * 2);
+    ctx.arc(s[0], s[1], r, 0, Math.PI * 2);
     ctx.fill();
+    if (selected) {
+      ctx.strokeStyle = "#e8973a";
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.arc(s[0], s[1], r + 4, 0, Math.PI * 2);
+      ctx.stroke();
+    }
     ctx.strokeStyle = "#e8973a55";
     for (const [dx, dy] of [[-8, 0], [8, 0], [0, -8], [0, 8]]) {
       ctx.beginPath();
@@ -888,15 +931,9 @@
 
       const head = document.createElement("div");
       head.className = "obj-card-head";
-      const chip = document.createElement("button");
-      chip.className = "obj-chip " + o.type + " name-btn";
+      const chip = document.createElement("span");
+      chip.className = "obj-chip " + o.type;
       chip.textContent = objLabel(o);
-      chip.title = "클릭해서 선택 (선택 후 방향키로 이동, Q/E로 높이)";
-      chip.addEventListener("click", () => {
-        state.selectedId = state.selectedId === o.id ? null : o.id;
-        renderObjList();
-        refreshAll();
-      });
       const rm = document.createElement("button");
       rm.className = "rm";
       rm.textContent = "✕";
@@ -909,6 +946,13 @@
       });
       head.append(chip, rm);
       card.appendChild(head);
+      card.title = "클릭해서 선택 (선택 후 방향키로 이동, Q/E로 높이)";
+      card.addEventListener("click", (e) => {
+        if (e.target === rm || e.target.tagName === "INPUT") return;
+        state.selectedId = state.selectedId === o.id ? null : o.id;
+        renderObjList();
+        refreshAll();
+      });
 
       const posRow = document.createElement("div");
       posRow.className = "field-row";
@@ -989,6 +1033,11 @@
     state.light.color = e.target.value;
     refreshAll();
   });
+  document.getElementById("light-select-btn").addEventListener("click", () => {
+    state.selectedId = state.selectedId === "light" ? null : "light";
+    renderObjList();
+    refreshAll();
+  });
 
   document.querySelectorAll("[data-add]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -1022,6 +1071,12 @@
 
   function updateCtrlTarget() {
     const el = document.getElementById("ctrl-target");
+    const lightBtn = document.getElementById("light-select-btn");
+    lightBtn.classList.toggle("selected", state.selectedId === "light");
+    if (state.selectedId === "light") {
+      el.textContent = "조작 대상: Light · WASD/방향키: 이동 · Q/E: 높이 · 드래그: 시점 회전 · 다시 클릭: 선택 해제";
+      return;
+    }
     const o = state.objects.find((x) => x.id === state.selectedId);
     if (o) {
       const canRotate = o.type === "pl" || o.type === "cy";
@@ -1039,7 +1094,7 @@
   function groundBasis(cam) {
     const yaw = (cam.yaw * Math.PI) / 180;
     const fwd = [Math.sin(yaw), 0, Math.cos(yaw)];
-    const right = [Math.cos(yaw), 0, -Math.sin(yaw)];
+    const right = [-Math.cos(yaw), 0, Math.sin(yaw)];
     return { fwd, right };
   }
 
@@ -1091,6 +1146,12 @@
     p[2] += right[2] * dx * scale + fwd[2] * -dy * scale;
   }
 
+  function syncLightPositionInputs() {
+    document.getElementById("l-px").value = fmt(state.light.pos[0]);
+    document.getElementById("l-py").value = fmt(state.light.pos[1]);
+    document.getElementById("l-pz").value = fmt(state.light.pos[2]);
+  }
+
   /* ---------- mouse drag: camera orbit / selected-object move & rotate ---------- */
 
   let dragging = false;
@@ -1116,7 +1177,7 @@
     lastX = e.clientX;
     lastY = e.clientY;
 
-    const o = state.objects.find((x) => x.id === state.selectedId);
+    const o = state.selectedId === "light" ? null : state.objects.find((x) => x.id === state.selectedId);
     if (o) {
       if (e.shiftKey && (o.type === "pl" || o.type === "cy")) rotateObjectDirection(o, dx, dy);
       else moveObjectByDrag(o, dx, dy);
@@ -1148,20 +1209,20 @@
     if (state.selectedId == null) {
       const { fwd, right } = groundBasis(state.camera);
       let moved = true;
-      if (e.key === "w" || e.key === "W") {
+      if (e.code === "KeyW") {
         state.camera.pos[0] += fwd[0] * MOVE_STEP;
         state.camera.pos[2] += fwd[2] * MOVE_STEP;
-      } else if (e.key === "s" || e.key === "S") {
+      } else if (e.code === "KeyS") {
         state.camera.pos[0] -= fwd[0] * MOVE_STEP;
         state.camera.pos[2] -= fwd[2] * MOVE_STEP;
-      } else if (e.key === "a" || e.key === "A") {
+      } else if (e.code === "KeyA") {
         state.camera.pos[0] -= right[0] * MOVE_STEP;
         state.camera.pos[2] -= right[2] * MOVE_STEP;
-      } else if (e.key === "d" || e.key === "D") {
+      } else if (e.code === "KeyD") {
         state.camera.pos[0] += right[0] * MOVE_STEP;
         state.camera.pos[2] += right[2] * MOVE_STEP;
-      } else if (e.key === "q" || e.key === "Q") state.camera.pos[1] -= MOVE_STEP;
-      else if (e.key === "e" || e.key === "E") state.camera.pos[1] += MOVE_STEP;
+      } else if (e.code === "KeyQ") state.camera.pos[1] -= MOVE_STEP;
+      else if (e.code === "KeyE") state.camera.pos[1] += MOVE_STEP;
       else moved = false;
       if (moved) {
         e.preventDefault();
@@ -1171,16 +1232,34 @@
       return;
     }
 
+    if (state.selectedId === "light") {
+      const p = state.light.pos;
+      let moved = true;
+      if (e.code === "ArrowLeft" || e.code === "KeyA") p[0] -= MOVE_STEP;
+      else if (e.code === "ArrowRight" || e.code === "KeyD") p[0] += MOVE_STEP;
+      else if (e.code === "ArrowUp" || e.code === "KeyW") p[2] += MOVE_STEP;
+      else if (e.code === "ArrowDown" || e.code === "KeyS") p[2] -= MOVE_STEP;
+      else if (e.code === "KeyQ") p[1] -= MOVE_STEP;
+      else if (e.code === "KeyE") p[1] += MOVE_STEP;
+      else moved = false;
+      if (moved) {
+        e.preventDefault();
+        syncLightPositionInputs();
+        refreshAll();
+      }
+      return;
+    }
+
     const o = state.objects.find((x) => x.id === state.selectedId);
     if (!o) return;
     const p = o.type === "pl" ? o.point : o.center;
     let moved = true;
-    if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") p[0] -= MOVE_STEP;
-    else if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") p[0] += MOVE_STEP;
-    else if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") p[2] += MOVE_STEP;
-    else if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") p[2] -= MOVE_STEP;
-    else if (e.key === "q" || e.key === "Q") p[1] -= MOVE_STEP;
-    else if (e.key === "e" || e.key === "E") p[1] += MOVE_STEP;
+    if (e.code === "ArrowLeft" || e.code === "KeyA") p[0] -= MOVE_STEP;
+    else if (e.code === "ArrowRight" || e.code === "KeyD") p[0] += MOVE_STEP;
+    else if (e.code === "ArrowUp" || e.code === "KeyW") p[2] += MOVE_STEP;
+    else if (e.code === "ArrowDown" || e.code === "KeyS") p[2] -= MOVE_STEP;
+    else if (e.code === "KeyQ") p[1] -= MOVE_STEP;
+    else if (e.code === "KeyE") p[1] += MOVE_STEP;
     else moved = false;
     if (moved) {
       e.preventDefault();
@@ -1193,4 +1272,8 @@
   renderObjList();
   updateCtrlTarget();
   resizeCanvas();
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(resizeCanvas);
+  }
 </script>
