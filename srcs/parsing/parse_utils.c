@@ -1,4 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parse_utils.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: akkim <akkim@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/09/19 10:00:00 by akkim             #+#    #+#             */
+/*   Updated: 2026/09/19 10:00:00 by akkim            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdlib.h>
+#include "libft.h"
 #include "parsing.h"
 
 int	count_tokens(char **tokens)
@@ -23,4 +36,17 @@ void	free_tokens(char **tokens)
 	while (tokens[i])
 		free(tokens[i++]);
 	free(tokens);
+}
+
+/* 과제 요구: 씬 파일은 .rt 확장자여야 한다. */
+int	has_rt_extension(const char *path)
+{
+	size_t	len;
+
+	if (!path)
+		return (0);
+	len = ft_strlen(path);
+	if (len < 4)
+		return (0);
+	return (ft_strcmp(path + len - 3, ".rt") == 0);
 }

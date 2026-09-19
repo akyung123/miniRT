@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parsing.h                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: akkim <akkim@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/09/19 10:00:00 by akkim             #+#    #+#             */
+/*   Updated: 2026/09/19 10:00:00 by akkim            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef PARSING_H
 # define PARSING_H
 
@@ -7,6 +19,7 @@
 
 void	free_tokens(char **tokens);
 int		count_tokens(char **tokens);
+int		has_rt_extension(const char *path);
 
 /* ---------- Number / vector / color parsing ---------- */
 

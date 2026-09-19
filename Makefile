@@ -54,6 +54,9 @@ $(LIBFT):
 	make -C $(LIBFT_DIR)
 
 $(MLX):
+	@if [ ! -d "$(MLX_DIR)" ]; then \
+		echo "minilibx not found: $(MLX_DIR)"; exit 1; \
+	fi
 	make -C $(MLX_DIR)
 
 %.o: %.c
@@ -66,7 +69,7 @@ $(NAME): $(OBJS)
 clean:
 	rm -f $(OBJS)
 	make -C $(LIBFT_DIR) clean
-	make -C $(MLX_DIR) clean
+	@if [ -d "$(MLX_DIR)" ]; then make -C $(MLX_DIR) clean; fi
 
 .PHONY: fclean
 fclean: clean

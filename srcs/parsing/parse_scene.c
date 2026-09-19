@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parse_scene.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: akkim <akkim@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/09/19 10:00:00 by akkim             #+#    #+#             */
+/*   Updated: 2026/09/19 10:00:00 by akkim            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -63,6 +75,17 @@ static int	parse_lines(int fd, t_scene *scene, t_parse_flags *flags)
 	return (ok);
 }
 
+static int	check_required(t_scene *scene, t_parse_flags *flags)
+{
+	if (!flags->has_ambient || !flags->has_camera || !flags->has_light)
+	{
+		free_scene(scene);
+		ft_error("missing required element (A, C, or L)");
+		return (0);
+	}
+	return (1);
+}
+
 int	parse_scene(const char *path, t_scene *scene)
 {
 	int				fd;
@@ -72,6 +95,8 @@ int	parse_scene(const char *path, t_scene *scene)
 	flags.has_ambient = 0;
 	flags.has_camera = 0;
 	flags.has_light = 0;
+	if (!has_rt_extension(path))
+		return (ft_error("scene file must have a .rt extension"), 0);
 	fd = open(path, O_RDONLY);
 	if (fd < 0)
 		return (ft_sys_error("open"), 0);
@@ -82,11 +107,5 @@ int	parse_scene(const char *path, t_scene *scene)
 		return (0);
 	}
 	close(fd);
-	if (!flags.has_ambient || !flags.has_camera || !flags.has_light)
-	{
-		free_scene(scene);
-		ft_error("missing required element (A, C, or L)");
-		return (0);
-	}
-	return (1);
+	return (check_required(scene, &flags));
 }
