@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   render.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seoykim <seoykim@student.42.fr>            +#+  +:+       +#+        */
+/*   By: seoykim <seoykim@student.42gyeongsan.kr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/17 19:34:10 by seoykim           #+#    #+#             */
 /*   Updated: 2026/09/17 19:34:10 by seoykim          ###   ########.fr       */
