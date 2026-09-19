@@ -3,10 +3,13 @@
 
 # include "miniRT.h"
 
+# define DESTROY_NOTIFY 17
 # ifdef __APPLE__
 #  define KEY_ESC 53
+#  define DESTROY_MASK 0
 # else
 #  define KEY_ESC 65307
+#  define DESTROY_MASK (1L << 17)
 # endif
 
 t_color	render_pixel(t_scene *scene, int x, int y);
