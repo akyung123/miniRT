@@ -1364,12 +1364,21 @@
 
     if (state.selectedId === "light") {
       const p = state.light.pos;
+      const { fwd, right } = groundBasis(state.camera);
       let moved = true;
-      if (e.code === "ArrowLeft" || e.code === "KeyA") p[0] -= MOVE_STEP;
-      else if (e.code === "ArrowRight" || e.code === "KeyD") p[0] += MOVE_STEP;
-      else if (e.code === "ArrowUp" || e.code === "KeyW") p[2] += MOVE_STEP;
-      else if (e.code === "ArrowDown" || e.code === "KeyS") p[2] -= MOVE_STEP;
-      else if (e.code === "KeyQ") p[1] -= MOVE_STEP;
+      if (e.code === "ArrowLeft" || e.code === "KeyA") {
+        p[0] -= right[0] * MOVE_STEP;
+        p[2] -= right[2] * MOVE_STEP;
+      } else if (e.code === "ArrowRight" || e.code === "KeyD") {
+        p[0] += right[0] * MOVE_STEP;
+        p[2] += right[2] * MOVE_STEP;
+      } else if (e.code === "ArrowUp" || e.code === "KeyW") {
+        p[0] += fwd[0] * MOVE_STEP;
+        p[2] += fwd[2] * MOVE_STEP;
+      } else if (e.code === "ArrowDown" || e.code === "KeyS") {
+        p[0] -= fwd[0] * MOVE_STEP;
+        p[2] -= fwd[2] * MOVE_STEP;
+      } else if (e.code === "KeyQ") p[1] -= MOVE_STEP;
       else if (e.code === "KeyE") p[1] += MOVE_STEP;
       else moved = false;
       if (moved) {
@@ -1383,12 +1392,21 @@
     const o = state.objects.find((x) => x.id === state.selectedId);
     if (!o) return;
     const p = o.type === "pl" ? o.point : o.center;
+    const { fwd, right } = groundBasis(state.camera);
     let moved = true;
-    if (e.code === "ArrowLeft" || e.code === "KeyA") p[0] -= MOVE_STEP;
-    else if (e.code === "ArrowRight" || e.code === "KeyD") p[0] += MOVE_STEP;
-    else if (e.code === "ArrowUp" || e.code === "KeyW") p[2] += MOVE_STEP;
-    else if (e.code === "ArrowDown" || e.code === "KeyS") p[2] -= MOVE_STEP;
-    else if (e.code === "KeyQ") p[1] -= MOVE_STEP;
+    if (e.code === "ArrowLeft" || e.code === "KeyA") {
+      p[0] -= right[0] * MOVE_STEP;
+      p[2] -= right[2] * MOVE_STEP;
+    } else if (e.code === "ArrowRight" || e.code === "KeyD") {
+      p[0] += right[0] * MOVE_STEP;
+      p[2] += right[2] * MOVE_STEP;
+    } else if (e.code === "ArrowUp" || e.code === "KeyW") {
+      p[0] += fwd[0] * MOVE_STEP;
+      p[2] += fwd[2] * MOVE_STEP;
+    } else if (e.code === "ArrowDown" || e.code === "KeyS") {
+      p[0] -= fwd[0] * MOVE_STEP;
+      p[2] -= fwd[2] * MOVE_STEP;
+    } else if (e.code === "KeyQ") p[1] -= MOVE_STEP;
     else if (e.code === "KeyE") p[1] += MOVE_STEP;
     else moved = false;
     if (moved) {
