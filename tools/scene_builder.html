@@ -884,6 +884,16 @@
     return row;
   }
 
+  function parseVecPaste(text) {
+    const nums = text
+      .trim()
+      .split(/[\s,;]+/)
+      .map(Number)
+      .filter((n) => !Number.isNaN(n));
+    if (nums.length >= 3) return nums.slice(0, 3);
+    return null;
+  }
+
   function vecFields(labelPrefix, vec, onChange) {
     const wrap = document.createElement("div");
     wrap.style.display = "flex";
@@ -896,6 +906,18 @@
       input.title = labelPrefix + " " + axis;
       input.addEventListener("input", () => {
         vec[i] = parseFloat(input.value) || 0;
+        onChange();
+        refreshAll();
+      });
+      input.addEventListener("paste", (e) => {
+        const text = (e.clipboardData || window.clipboardData).getData("text");
+        const nums = parseVecPaste(text);
+        if (!nums) return;
+        e.preventDefault();
+        for (let j = 0; j < 3; j++) {
+          vec[j] = nums[j];
+          wrap.children[j].value = nums[j];
+        }
         onChange();
         refreshAll();
       });
@@ -1012,6 +1034,22 @@
     });
   }
 
+  function bindVecPaste(ids, vec) {
+    ids.forEach((id) => {
+      document.getElementById(id).addEventListener("paste", (e) => {
+        const text = (e.clipboardData || window.clipboardData).getData("text");
+        const nums = parseVecPaste(text);
+        if (!nums) return;
+        e.preventDefault();
+        ids.forEach((id2, j) => {
+          vec[j] = nums[j];
+          document.getElementById(id2).value = nums[j];
+        });
+        refreshAll();
+      });
+    });
+  }
+
   bindRange("a-ratio", "a-ratio-out", (v) => (state.ambient.ratio = v), (v) => v.toFixed(2));
   document.getElementById("a-color").addEventListener("input", (e) => {
     state.ambient.color = e.target.value;
@@ -1021,6 +1059,7 @@
   bindNumber("c-px", (v) => (state.camera.pos[0] = v));
   bindNumber("c-py", (v) => (state.camera.pos[1] = v));
   bindNumber("c-pz", (v) => (state.camera.pos[2] = v));
+  bindVecPaste(["c-px", "c-py", "c-pz"], state.camera.pos);
   bindRange("c-yaw", "c-yaw-out", (v) => (state.camera.yaw = v), (v) => Math.round(v) + "°");
   bindRange("c-pitch", "c-pitch-out", (v) => (state.camera.pitch = v), (v) => Math.round(v) + "°");
   bindRange("c-fov", "c-fov-out", (v) => (state.camera.fov = v), (v) => Math.round(v) + "°");
@@ -1028,6 +1067,7 @@
   bindNumber("l-px", (v) => (state.light.pos[0] = v));
   bindNumber("l-py", (v) => (state.light.pos[1] = v));
   bindNumber("l-pz", (v) => (state.light.pos[2] = v));
+  bindVecPaste(["l-px", "l-py", "l-pz"], state.light.pos);
   bindRange("l-bright", "l-bright-out", (v) => (state.light.brightness = v), (v) => v.toFixed(2));
   document.getElementById("l-color").addEventListener("input", (e) => {
     state.light.color = e.target.value;
