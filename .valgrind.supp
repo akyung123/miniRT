@@ -1,0 +1,213 @@
+{
+   mlx_init_malloc
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:mlx_init
+   fun:init_mlx
+   fun:main
+}
+{
+   mlx_init_xopendisplay_malloc
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:XOpenDisplay
+   fun:mlx_init
+   fun:init_mlx
+   fun:main
+}
+{
+   mlx_init_xkbuseextension_calloc
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:XkbUseExtension
+   fun:XOpenDisplay
+   fun:mlx_init
+   fun:init_mlx
+   fun:main
+}
+{
+   mlx_init_xcreategc_malloc
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:XCreateGC
+   fun:XOpenDisplay
+   fun:mlx_init
+   fun:init_mlx
+   fun:main
+}
+{
+   mlx_init_xopendisplay_calloc
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:XOpenDisplay
+   fun:mlx_init
+   fun:init_mlx
+   fun:main
+}
+{
+   mlx_int_deal_shm_malloc
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   obj:/usr/lib/x86_64-linux-gnu/libXext.so.6.4.0
+   fun:XextAddDisplay
+   fun:XShmQueryVersion
+   fun:mlx_int_deal_shm
+   fun:mlx_init
+   fun:init_mlx
+   fun:main
+}
+{
+   mlx_new_window_wait_first_expose_malloc_1
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:_XEnq
+   obj:/usr/lib/x86_64-linux-gnu/libX11.so.6.4.0
+   fun:_XReadEvents
+   fun:XWindowEvent
+   fun:mlx_int_wait_first_expose
+   fun:mlx_new_window
+   fun:init_mlx
+   fun:main
+}
+{
+   mlx_init_xinternatom_calloc
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   obj:/usr/lib/x86_64-linux-gnu/libX11.so.6.4.0
+   fun:XInternAtom
+   fun:mlx_init
+   fun:init_mlx
+   fun:main
+}
+{
+   mlx_new_window_wait_first_expose_malloc_2
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:_XEnq
+   obj:/usr/lib/x86_64-linux-gnu/libX11.so.6.4.0
+   fun:_XReadEvents
+   fun:XWindowEvent
+   fun:mlx_int_wait_first_expose
+   fun:mlx_new_window
+   fun:init_mlx
+   fun:main
+}
+{
+   mlx_new_image_xshm_xsync_malloc
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:_XEnq
+   obj:/usr/lib/x86_64-linux-gnu/libX11.so.6.4.0
+   fun:_XReply
+   fun:XSync
+   fun:mlx_int_new_xshm_image
+   fun:mlx_new_image
+   fun:init_mlx
+   fun:main
+}
+{
+   mlx_new_window_wait_first_expose_malloc_3
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:_XEnq
+   obj:/usr/lib/x86_64-linux-gnu/libX11.so.6.4.0
+   fun:_XReadEvents
+   fun:XWindowEvent
+   fun:mlx_int_wait_first_expose
+   fun:mlx_new_window
+   fun:init_mlx
+   fun:main
+}
+{
+   render_all_xflush_malloc
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:_XEnq
+   obj:/usr/lib/x86_64-linux-gnu/libX11.so.6.4.0
+   fun:_XEventsQueued
+   fun:XFlush
+   fun:render_all
+   fun:main
+}
+{
+   mlx_new_window_wait_first_expose_malloc_4
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:_XEnq
+   obj:/usr/lib/x86_64-linux-gnu/libX11.so.6.4.0
+   fun:_XReadEvents
+   fun:XWindowEvent
+   fun:mlx_int_wait_first_expose
+   fun:mlx_new_window
+   fun:init_mlx
+   fun:main
+}
+{
+   mlx_init_xopendisplay_calloc_2
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:XOpenDisplay
+   fun:mlx_init
+   fun:init_mlx
+   fun:main
+}
+{
+   mlx_init_xcbconnect_realloc
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:realloc
+   fun:xcb_connect_to_fd
+   fun:xcb_connect_to_display_with_auth_info
+   fun:_XConnectXCB
+   fun:XOpenDisplay
+   fun:mlx_init
+   fun:init_mlx
+   fun:main
+}
+{
+   mlx_init_xopendisplay_calloc_3
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:XOpenDisplay
+   fun:mlx_init
+   fun:init_mlx
+   fun:main
+}
+{
+   mlx_init_xcbconnect_calloc
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:xcb_connect_to_fd
+   fun:xcb_connect_to_display_with_auth_info
+   fun:_XConnectXCB
+   fun:XOpenDisplay
+   fun:mlx_init
+   fun:init_mlx
+   fun:main
+}
+{
+   mlx_init_xopendisplay_calloc_4
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:XOpenDisplay
+   fun:mlx_init
+   fun:init_mlx
+   fun:main
+}
