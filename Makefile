@@ -75,3 +75,19 @@ fclean: clean
 
 .PHONY: re
 re: fclean all
+
+# 서브 디렉터리 전용 타겟 위임 (cd 없이 루트에서 바로 실행)
+#   parse-test -> tests/parse_test  (파서 단독 테스트용 바이너리 빌드, mlx 불필요)
+#   suite      -> parse-test 빌드 후 scenes/valid,invalid 전체 회귀 테스트
+#   perf       -> tests/perf_test   (실제 render_pixel, 이미지캐싱 vs mlx_pixel_put 속도 비교)
+.PHONY: parse-test
+parse-test:
+	make -C srcs/parsing test
+
+.PHONY: suite
+suite:
+	make -C srcs/parsing suite
+
+.PHONY: perf
+perf:
+	make -C srcs/output perf
