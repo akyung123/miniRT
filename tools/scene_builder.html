@@ -1,0 +1,1427 @@
+<!doctype html>
+<title>miniRT Scene Builder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  :root {
+    --bg: #14171c;
+    --panel: #1c2129;
+    --panel-raised: #232935;
+    --border: #2a313c;
+    --text: #e8ebef;
+    --text-dim: #8b93a1;
+    --text-faint: #5b6270;
+    --accent: #e8973a;
+    --accent-dim: #6b5230;
+    --accent-text: #1a1206;
+    --danger: #d4685a;
+    --axis-x: #e05d5d;
+    --axis-y: #5dc46a;
+    --axis-z: #5b8fe0;
+    --radius: 6px;
+    --font-ui: "IBM Plex Sans", -apple-system, "Malgun Gothic", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    margin: 0;
+    height: 100%;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  header {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+  }
+
+  header h1 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: 0.01em;
+  }
+
+  header .sub {
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+
+  main {
+    flex: 1 1 auto;
+    display: flex;
+    min-height: 0;
+  }
+
+  #sidebar {
+    flex: 0 0 300px;
+    overflow-y: auto;
+    border-right: 1px solid var(--border);
+    background: var(--panel);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  #stage {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  #canvas-wrap {
+    flex: 1 1 auto;
+    position: relative;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #0a0c0f;
+  }
+
+  #frame {
+    position: relative;
+    border: 1px solid var(--border);
+    box-shadow: 0 0 0 1px #000, 0 8px 28px rgba(0, 0, 0, 0.5);
+  }
+
+  canvas {
+    display: block;
+    cursor: grab;
+    touch-action: none;
+  }
+
+  canvas.dragging {
+    cursor: grabbing;
+  }
+
+  #hint {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    color: var(--text-faint);
+    font-size: 11px;
+    font-family: var(--font-mono);
+    pointer-events: none;
+  }
+
+  #ctrl-target {
+    position: absolute;
+    top: 28px;
+    left: 12px;
+    color: var(--accent);
+    font-size: 11px;
+    font-family: var(--font-mono);
+    pointer-events: none;
+  }
+
+  #frame-size {
+    position: absolute;
+    bottom: 8px;
+    right: 10px;
+    color: var(--text-faint);
+    font-size: 10.5px;
+    font-family: var(--font-mono);
+    pointer-events: none;
+  }
+
+  section.group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .group-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+  }
+
+  .group-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .light-select {
+    font-size: 10.5px;
+    padding: 2px 8px;
+  }
+
+  .light-select.selected {
+    background: var(--accent);
+    color: var(--accent-text);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  .field-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .field-row label {
+    flex: 0 0 58px;
+    color: var(--text-dim);
+    font-size: 11.5px;
+  }
+
+  .field-row input[type="number"],
+  .field-row input[type="range"] {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .field-row .num-out {
+    flex: 0 0 44px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    text-align: right;
+    color: var(--text-faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  input[type="number"] {
+    background: var(--panel-raised);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 4px 6px;
+    width: 100%;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 2px solid var(--bg);
+  }
+
+  input[type="color"] {
+    width: 28px;
+    height: 24px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .add-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  button {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--panel-raised);
+    color: var(--text);
+    padding: 6px 10px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    border-color: var(--accent-dim);
+  }
+
+  button:focus-visible,
+  input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  button.add {
+    flex: 1 1 0;
+  }
+
+  button.primary {
+    background: var(--accent);
+    color: var(--accent-text);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  button.primary:hover {
+    filter: brightness(1.08);
+  }
+
+  #obj-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .obj-card {
+    background: var(--panel-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    cursor: pointer;
+  }
+
+  .obj-card-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .obj-chip {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .obj-chip.sp {
+    background: #3a2f1c;
+    color: #e8b13a;
+  }
+
+  .obj-chip.pl {
+    background: #1c2f3a;
+    color: #4fb8e8;
+  }
+
+  .obj-chip.cy {
+    background: #2a1c3a;
+    color: #b06fe8;
+  }
+
+  .obj-card-head .rm {
+    margin-left: auto;
+    color: var(--text-faint);
+    background: none;
+    border: none;
+    font-size: 14px;
+    line-height: 1;
+    padding: 2px 4px;
+  }
+
+  .obj-card-head .rm:hover {
+    color: var(--danger);
+  }
+
+  .obj-card.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent-dim);
+  }
+
+  .empty-note {
+    color: var(--text-faint);
+    font-size: 11.5px;
+    font-style: italic;
+  }
+
+  #rt-panel {
+    flex: 0 0 auto;
+    border-top: 1px solid var(--border);
+    background: var(--panel);
+    padding: 10px 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  #rt-panel-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #rt-panel-head .group-title {
+    margin: 0;
+  }
+
+  #rt-status {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+
+  #rt-status.err {
+    color: var(--danger);
+  }
+
+  #rt-panel-head button {
+    margin-left: auto;
+  }
+
+  #rt-output {
+    width: 100%;
+    height: 108px;
+    resize: vertical;
+    background: #0f1216;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.6;
+    padding: 10px 12px;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  ::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--panel-raised);
+    border-radius: 5px;
+    border: 2px solid var(--panel);
+  }
+</style>
+
+<header>
+  <h1>miniRT Scene Builder</h1>
+  <span class="sub">씬을 시각적으로 배치하고 .rt 텍스트로 바로 뽑아내는 도구 · 조명/그림자 계산 없는 근사 프리뷰</span>
+</header>
+
+<main>
+  <div id="sidebar">
+    <section class="group">
+      <div class="group-title">Ambient</div>
+      <div class="field-row">
+        <label>ratio</label>
+        <input id="a-ratio" type="range" min="0" max="1" step="0.01" value="0.2" />
+        <span class="num-out" id="a-ratio-out">0.20</span>
+      </div>
+      <div class="field-row">
+        <label>color</label>
+        <input id="a-color" type="color" value="#ffffff" />
+      </div>
+    </section>
+
+    <section class="group">
+      <div class="group-title">Camera</div>
+      <div class="field-row"><label>pos x</label><input id="c-px" type="number" step="1" value="0" /></div>
+      <div class="field-row"><label>pos y</label><input id="c-py" type="number" step="1" value="8" /></div>
+      <div class="field-row"><label>pos z</label><input id="c-pz" type="number" step="1" value="-60" /></div>
+      <div class="field-row">
+        <label>yaw</label>
+        <input id="c-yaw" type="range" min="-180" max="180" step="1" value="0" />
+        <span class="num-out" id="c-yaw-out">0°</span>
+      </div>
+      <div class="field-row">
+        <label>pitch</label>
+        <input id="c-pitch" type="range" min="-89" max="89" step="1" value="0" />
+        <span class="num-out" id="c-pitch-out">0°</span>
+      </div>
+      <div class="field-row">
+        <label>fov</label>
+        <input id="c-fov" type="range" min="1" max="180" step="1" value="70" />
+        <span class="num-out" id="c-fov-out">70°</span>
+      </div>
+    </section>
+
+    <section class="group">
+      <div class="group-title-row">
+        <div class="group-title">Light</div>
+        <button id="light-select-btn" class="light-select" title="클릭해서 선택 (선택 후 WASD/방향키로 이동, Q/E로 높이)">선택</button>
+      </div>
+      <div class="field-row"><label>pos x</label><input id="l-px" type="number" step="1" value="25" /></div>
+      <div class="field-row"><label>pos y</label><input id="l-py" type="number" step="1" value="35" /></div>
+      <div class="field-row"><label>pos z</label><input id="l-pz" type="number" step="1" value="-25" /></div>
+      <div class="field-row">
+        <label>bright</label>
+        <input id="l-bright" type="range" min="0" max="1" step="0.01" value="0.6" />
+        <span class="num-out" id="l-bright-out">0.60</span>
+      </div>
+      <div class="field-row">
+        <label>color</label>
+        <input id="l-color" type="color" value="#ffffff" />
+      </div>
+    </section>
+
+    <section class="group">
+      <div class="group-title">Objects</div>
+      <div class="add-row">
+        <button class="add" data-add="sp">+ Sphere</button>
+        <button class="add" data-add="pl">+ Plane</button>
+        <button class="add" data-add="cy">+ Cylinder</button>
+      </div>
+      <div id="obj-list"></div>
+    </section>
+  </div>
+
+  <div id="stage">
+    <div id="canvas-wrap">
+      <div id="frame">
+        <canvas id="view"></canvas>
+        <div id="hint">도형 이름 클릭: 선택/해제 (미선택 시 드래그·WASD는 카메라)</div>
+        <div id="ctrl-target"></div>
+        <div id="frame-size"></div>
+      </div>
+    </div>
+    <div id="rt-panel">
+      <div id="rt-panel-head">
+        <div class="group-title">.rt Output</div>
+        <span id="rt-status"></span>
+        <button class="primary" id="copy-btn">복사</button>
+      </div>
+      <textarea id="rt-output" spellcheck="false" title="완성된 .rt 텍스트를 여기 붙여넣으면 씬 전체를 가져와요"></textarea>
+    </div>
+  </div>
+</main>
+
+<script>
+  "use strict";
+
+  /* ---------- state ---------- */
+
+  const state = {
+    ambient: { ratio: 0.2, color: "#ffffff" },
+    camera: { pos: [0, 8, -60], yaw: 0, pitch: 0, fov: 70 },
+    light: { pos: [25, 35, -25], brightness: 0.6, color: "#ffffff" },
+    objects: [
+      { id: 1, type: "sp", center: [0, 0, 0], diameter: 20, color: "#ff3b3b" },
+      { id: 2, type: "pl", point: [0, -12, 0], normal: [0, 1, 0], color: "#c9cfd8" },
+    ],
+    selectedId: null,
+  };
+  let nextId = 3;
+
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+  /* ---------- vector helpers ---------- */
+
+  const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  const add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+  const scl = (a, s) => [a[0] * s, a[1] * s, a[2] * s];
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const cross = (a, b) => [
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0],
+  ];
+  const len = (a) => Math.sqrt(dot(a, a));
+  const norm = (a) => {
+    const l = len(a) || 1e-9;
+    return scl(a, 1 / l);
+  };
+
+  function cameraDirection(cam) {
+    const yaw = (cam.yaw * Math.PI) / 180;
+    const pitch = (cam.pitch * Math.PI) / 180;
+    return [
+      Math.cos(pitch) * Math.sin(yaw),
+      Math.sin(pitch),
+      Math.cos(pitch) * Math.cos(yaw),
+    ];
+  }
+
+  function planeBasis(n) {
+    let ref = [0, 1, 0];
+    if (Math.abs(dot(n, ref)) > 0.98) ref = [1, 0, 0];
+    const u = norm(cross(ref, n));
+    const v = cross(n, u);
+    return [u, v];
+  }
+
+  /* ---------- camera / projection ---------- */
+
+  function buildView(cam) {
+    const forward = norm(cameraDirection(cam));
+    let worldUp = [0, 1, 0];
+    if (Math.abs(dot(forward, worldUp)) > 0.999) worldUp = [0, 0, 1];
+    const right = norm(cross(forward, worldUp));
+    const up = cross(right, forward);
+    return { pos: cam.pos, forward, right, up };
+  }
+
+  const NEAR_CLIP = 1;
+
+  function project(view, p, w, h, focal) {
+    const rel = sub(p, view.pos);
+    const vz = dot(rel, view.forward);
+    if (vz < NEAR_CLIP) return null;
+    const vx = dot(rel, view.right);
+    const vy = dot(rel, view.up);
+    return [w / 2 + (vx / vz) * focal, h / 2 - (vy / vz) * focal, vz];
+  }
+
+  /* ---------- color helpers ---------- */
+
+  function hexToRgb(hex) {
+    const n = parseInt(hex.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+
+  function rgbToHex([r, g, b]) {
+    const c = (v) => clamp(Math.round(v), 0, 255).toString(16).padStart(2, "0");
+    return "#" + c(r) + c(g) + c(b);
+  }
+
+  const fmt = (n) => {
+    const r = Math.round(n * 1000) / 1000;
+    return Object.is(r, -0) ? "0" : String(r);
+  };
+
+  /* ---------- .rt generation ---------- */
+
+  function generateRt() {
+    const lines = [];
+    const a = state.ambient;
+    lines.push(`A ${fmt(a.ratio)} ${hexToRgb(a.color).join(",")}`);
+
+    const cam = state.camera;
+    const dir = norm(cameraDirection(cam));
+    lines.push(
+      `C ${cam.pos.map(fmt).join(",")} ${dir.map(fmt).join(",")} ${fmt(cam.fov)}`
+    );
+
+    const l = state.light;
+    lines.push(
+      `L ${l.pos.map(fmt).join(",")} ${fmt(l.brightness)} ${hexToRgb(l.color).join(",")}`
+    );
+
+    lines.push("");
+    for (const o of state.objects) {
+      const rgb = hexToRgb(o.color).join(",");
+      if (o.type === "sp") {
+        lines.push(`sp ${o.center.map(fmt).join(",")} ${fmt(o.diameter)} ${rgb}`);
+      } else if (o.type === "pl") {
+        const n = norm(o.normal);
+        lines.push(`pl ${o.point.map(fmt).join(",")} ${n.map(fmt).join(",")} ${rgb}`);
+      } else if (o.type === "cy") {
+        const n = norm(o.axis);
+        lines.push(
+          `cy ${o.center.map(fmt).join(",")} ${n.map(fmt).join(",")} ${fmt(o.diameter)} ${fmt(o.height)} ${rgb}`
+        );
+      }
+    }
+    return lines.join("\n") + "\n";
+  }
+
+  /* ---------- .rt import (paste a full .rt back into the tool) ---------- */
+
+  function directionToYawPitch(d) {
+    const n = norm(d);
+    const pitch = (Math.asin(clamp(n[1], -1, 1)) * 180) / Math.PI;
+    const cospitch = Math.cos((pitch * Math.PI) / 180);
+    let yaw = 0;
+    if (Math.abs(cospitch) > 1e-6) {
+      yaw = (Math.atan2(n[0] / cospitch, n[2] / cospitch) * 180) / Math.PI;
+    }
+    return { yaw, pitch };
+  }
+
+  function parseVec(str) {
+    const parts = (str || "").split(",").map(Number);
+    if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
+    return parts;
+  }
+
+  function parseRgbHex(str) {
+    const v = parseVec(str);
+    return v ? rgbToHex(v) : null;
+  }
+
+  function parseRt(text) {
+    const result = { ambient: null, camera: null, light: null, objects: [] };
+    let id = 1;
+    for (const raw of text.split("\n")) {
+      const line = raw.trim();
+      if (!line) continue;
+      const tok = line.split(/\s+/);
+      if (tok[0] === "A" && tok.length >= 3) {
+        const ratio = Number(tok[1]);
+        const color = parseRgbHex(tok[2]);
+        if (!Number.isNaN(ratio) && color) result.ambient = { ratio, color };
+      } else if (tok[0] === "C" && tok.length >= 4) {
+        const pos = parseVec(tok[1]);
+        const dir = parseVec(tok[2]);
+        const fov = Number(tok[3]);
+        if (pos && dir && !Number.isNaN(fov)) {
+          const { yaw, pitch } = directionToYawPitch(dir);
+          result.camera = { pos, yaw, pitch, fov };
+        }
+      } else if (tok[0] === "L" && tok.length >= 4) {
+        const pos = parseVec(tok[1]);
+        const brightness = Number(tok[2]);
+        const color = parseRgbHex(tok[3]);
+        if (pos && !Number.isNaN(brightness) && color) result.light = { pos, brightness, color };
+      } else if (tok[0] === "sp" && tok.length >= 4) {
+        const center = parseVec(tok[1]);
+        const diameter = Number(tok[2]);
+        const color = parseRgbHex(tok[3]);
+        if (center && !Number.isNaN(diameter) && color) {
+          result.objects.push({ id: id++, type: "sp", center, diameter, color });
+        }
+      } else if (tok[0] === "pl" && tok.length >= 4) {
+        const point = parseVec(tok[1]);
+        const normal = parseVec(tok[2]);
+        const color = parseRgbHex(tok[3]);
+        if (point && normal && color) {
+          result.objects.push({ id: id++, type: "pl", point, normal, color });
+        }
+      } else if (tok[0] === "cy" && tok.length >= 6) {
+        const center = parseVec(tok[1]);
+        const axis = parseVec(tok[2]);
+        const diameter = Number(tok[3]);
+        const height = Number(tok[4]);
+        const color = parseRgbHex(tok[5]);
+        if (center && axis && !Number.isNaN(diameter) && !Number.isNaN(height) && color) {
+          result.objects.push({ id: id++, type: "cy", center, axis, diameter, height, color });
+        }
+      }
+    }
+    return result;
+  }
+
+  function syncAllInputs() {
+    document.getElementById("a-ratio").value = state.ambient.ratio;
+    document.getElementById("a-ratio-out").textContent = state.ambient.ratio.toFixed(2);
+    document.getElementById("a-color").value = state.ambient.color;
+    syncCameraPositionInputs();
+    syncCameraSliders();
+    document.getElementById("c-fov").value = state.camera.fov;
+    document.getElementById("c-fov-out").textContent = Math.round(state.camera.fov) + "°";
+    syncLightPositionInputs();
+    document.getElementById("l-bright").value = state.light.brightness;
+    document.getElementById("l-bright-out").textContent = state.light.brightness.toFixed(2);
+    document.getElementById("l-color").value = state.light.color;
+  }
+
+  function importRt(text) {
+    const parsed = parseRt(text);
+    const gotSomething = parsed.ambient || parsed.camera || parsed.light || parsed.objects.length;
+    if (!gotSomething) return false;
+    if (parsed.ambient) state.ambient = parsed.ambient;
+    if (parsed.camera) state.camera = parsed.camera;
+    if (parsed.light) state.light = parsed.light;
+    if (parsed.objects.length) state.objects = parsed.objects;
+    nextId = state.objects.length + 1;
+    state.selectedId = null;
+    syncAllInputs();
+    renderObjList();
+    refreshAll();
+    return true;
+  }
+
+  function validate() {
+    const problems = [];
+    if (state.camera.fov <= 0 || state.camera.fov > 180) problems.push("fov는 0~180 사이여야 함");
+    for (const o of state.objects) {
+      if ((o.type === "sp" || o.type === "cy") && o.diameter <= 0)
+        problems.push(`${o.type} #${o.id}: diameter는 0보다 커야 함`);
+      if (o.type === "cy" && o.height <= 0) problems.push(`cy #${o.id}: height는 0보다 커야 함`);
+    }
+    return problems;
+  }
+
+  /* ---------- canvas rendering ---------- */
+
+  const canvas = document.getElementById("view");
+  const ctx = canvas.getContext("2d");
+
+  // 실제 프로그램의 고정 창 크기 (includes/miniRT.h의 WIN_WIDTH/WIN_HEIGHT와 맞춰야 함)
+  const REAL_WIN_WIDTH = 800;
+  const REAL_WIN_HEIGHT = 600;
+
+  function resizeCanvas() {
+    const wrap = canvas.parentElement.parentElement;
+    const wrapRect = wrap.getBoundingClientRect();
+    const targetRatio = REAL_WIN_WIDTH / REAL_WIN_HEIGHT;
+    let cssW = wrapRect.width;
+    let cssH = cssW / targetRatio;
+    if (cssH > wrapRect.height) {
+      cssH = wrapRect.height;
+      cssW = cssH * targetRatio;
+    }
+    const frame = document.getElementById("frame");
+    frame.style.width = cssW + "px";
+    frame.style.height = cssH + "px";
+    canvas.style.width = cssW + "px";
+    canvas.style.height = cssH + "px";
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = cssW * dpr;
+    canvas.height = cssH * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    document.getElementById("frame-size").textContent
+      = REAL_WIN_WIDTH + " × " + REAL_WIN_HEIGHT + " 실제 창 비율";
+    render();
+  }
+
+  function clipNear(view, p1, p2) {
+    const vz1 = dot(sub(p1, view.pos), view.forward);
+    const vz2 = dot(sub(p2, view.pos), view.forward);
+    const in1 = vz1 >= NEAR_CLIP;
+    const in2 = vz2 >= NEAR_CLIP;
+    if (!in1 && !in2) return null;
+    if (in1 && in2) return [p1, p2];
+    const t = (NEAR_CLIP - vz1) / (vz2 - vz1);
+    const mid = add(p1, scl(sub(p2, p1), t));
+    return in1 ? [p1, mid] : [mid, p2];
+  }
+
+  function drawSegment(view, p1, p2, w, h, focal, color, lineWidth) {
+    const clipped = clipNear(view, p1, p2);
+    if (!clipped) return;
+    const s1 = project(view, clipped[0], w, h, focal);
+    const s2 = project(view, clipped[1], w, h, focal);
+    if (!s1 || !s2) return;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth || 1;
+    ctx.beginPath();
+    ctx.moveTo(s1[0], s1[1]);
+    ctx.lineTo(s2[0], s2[1]);
+    ctx.stroke();
+  }
+
+  function circlePoints(center, u, v, r, n) {
+    const pts = [];
+    for (let i = 0; i <= n; i++) {
+      const t = (i / n) * Math.PI * 2;
+      pts.push(add(center, add(scl(u, Math.cos(t) * r), scl(v, Math.sin(t) * r))));
+    }
+    return pts;
+  }
+
+  function drawPolyline(view, pts, w, h, focal, color, lineWidth) {
+    for (let i = 0; i < pts.length - 1; i++) drawSegment(view, pts[i], pts[i + 1], w, h, focal, color, lineWidth);
+  }
+
+  function drawSphere(view, o, w, h, focal) {
+    const r = o.diameter / 2;
+    const c = o.center;
+    const rings = [
+      [[1, 0, 0], [0, 1, 0]],
+      [[1, 0, 0], [0, 0, 1]],
+      [[0, 1, 0], [0, 0, 1]],
+    ];
+    const selected = o.id === state.selectedId;
+    const color = selected ? "#e8973a" : o.color;
+    const lineWidth = selected ? 2.4 : 1.4;
+    for (const [u, v] of rings) drawPolyline(view, circlePoints(c, u, v, r, 40), w, h, focal, color, lineWidth);
+  }
+
+  function drawPlane(view, o, w, h, focal) {
+    const n = norm(o.normal);
+    const [u, v] = planeBasis(n);
+    const ext = 24;
+    const step = 6;
+    const selected = o.id === state.selectedId;
+    const color = selected ? "#e8973a" : o.color;
+    const lineWidth = selected ? 1.8 : 1;
+    for (let i = -ext; i <= ext; i += step) {
+      drawSegment(view, add(o.point, add(scl(u, i), scl(v, -ext))), add(o.point, add(scl(u, i), scl(v, ext))), w, h, focal, color, lineWidth);
+      drawSegment(view, add(o.point, add(scl(v, i), scl(u, -ext))), add(o.point, add(scl(v, i), scl(u, ext))), w, h, focal, color, lineWidth);
+    }
+  }
+
+  function drawCylinder(view, o, w, h, focal) {
+    const a = norm(o.axis);
+    const r = o.diameter / 2;
+    const half = o.height / 2;
+    const top = add(o.center, scl(a, half));
+    const bot = add(o.center, scl(a, -half));
+    const [u, v] = planeBasis(a);
+    const topPts = circlePoints(top, u, v, r, 32);
+    const botPts = circlePoints(bot, u, v, r, 32);
+    const selected = o.id === state.selectedId;
+    const color = selected ? "#e8973a" : o.color;
+    const lineWidth = selected ? 2.4 : 1.4;
+    drawPolyline(view, topPts, w, h, focal, color, lineWidth);
+    drawPolyline(view, botPts, w, h, focal, color, lineWidth);
+    for (let i = 0; i < 32; i += 8) drawSegment(view, topPts[i], botPts[i], w, h, focal, color, lineWidth);
+  }
+
+  function drawAxes(view, w, h, focal) {
+    const L = 30;
+    drawSegment(view, [0, 0, 0], [L, 0, 0], w, h, focal, "#e05d5d", 1.6);
+    drawSegment(view, [0, 0, 0], [0, L, 0], w, h, focal, "#5dc46a", 1.6);
+    drawSegment(view, [0, 0, 0], [0, 0, L], w, h, focal, "#5b8fe0", 1.6);
+    ctx.font = '11px "IBM Plex Mono", ui-monospace, monospace';
+    const label = (p, text, color) => {
+      const s = project(view, p, w, h, focal);
+      if (!s) return;
+      ctx.fillStyle = color;
+      ctx.fillText(text, s[0] + 4, s[1] + 4);
+    };
+    label([L, 0, 0], "X", "#e05d5d");
+    label([0, L, 0], "Y", "#5dc46a");
+    label([0, 0, L], "Z", "#5b8fe0");
+  }
+
+  function drawLight(view, w, h, focal) {
+    const p = state.light.pos;
+    const s = project(view, p, w, h, focal);
+    if (!s) return;
+    const selected = state.selectedId === "light";
+    const r = selected ? 6 : 4;
+    ctx.fillStyle = "#e8973a";
+    ctx.beginPath();
+    ctx.arc(s[0], s[1], r, 0, Math.PI * 2);
+    ctx.fill();
+    if (selected) {
+      ctx.strokeStyle = "#e8973a";
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.arc(s[0], s[1], r + 4, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = "#e8973a55";
+    for (const [dx, dy] of [[-8, 0], [8, 0], [0, -8], [0, 8]]) {
+      ctx.beginPath();
+      ctx.moveTo(s[0], s[1]);
+      ctx.lineTo(s[0] + dx, s[1] + dy);
+      ctx.stroke();
+    }
+  }
+
+  function render() {
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    ctx.fillStyle = "#0f1216";
+    ctx.fillRect(0, 0, w, h);
+    if (w === 0 || h === 0) return;
+
+    const view = buildView(state.camera);
+    // subject: "FOV: Horizontal field of view" — 가로 폭(w) 기준으로 focal 계산
+    const focal = w / 2 / Math.tan((state.camera.fov * Math.PI) / 180 / 2);
+
+    ctx.strokeStyle = "#20262f";
+    ctx.strokeRect(0.5, 0.5, w - 1, h - 1);
+
+    drawAxes(view, w, h, focal);
+    for (const o of state.objects) {
+      if (o.type === "sp") drawSphere(view, o, w, h, focal);
+      else if (o.type === "pl") drawPlane(view, o, w, h, focal);
+      else if (o.type === "cy") drawCylinder(view, o, w, h, focal);
+    }
+    drawLight(view, w, h, focal);
+  }
+
+  /* ---------- output panel refresh ---------- */
+
+  function refreshOutput() {
+    const problems = validate();
+    const status = document.getElementById("rt-status");
+    if (problems.length) {
+      status.textContent = "⚠ " + problems.join(" · ");
+      status.className = "err";
+    } else {
+      status.textContent = "유효한 .rt 형식";
+      status.className = "";
+    }
+    document.getElementById("rt-output").value = generateRt();
+  }
+
+  function refreshAll() {
+    render();
+    refreshOutput();
+    updateCtrlTarget();
+  }
+
+  /* ---------- object list UI ---------- */
+
+  function objLabel(o) {
+    if (o.type === "sp") return "Sphere";
+    if (o.type === "pl") return "Plane";
+    return "Cylinder";
+  }
+
+  function numField(labelText, value, onInput) {
+    const row = document.createElement("div");
+    row.className = "field-row";
+    const label = document.createElement("label");
+    label.textContent = labelText;
+    const input = document.createElement("input");
+    input.type = "number";
+    input.step = "1";
+    input.value = value;
+    input.addEventListener("input", () => {
+      onInput(parseFloat(input.value) || 0);
+      refreshAll();
+    });
+    row.append(label, input);
+    return row;
+  }
+
+  function vecFields(labelPrefix, vec, onChange) {
+    const wrap = document.createElement("div");
+    wrap.style.display = "flex";
+    wrap.style.gap = "4px";
+    ["x", "y", "z"].forEach((axis, i) => {
+      const input = document.createElement("input");
+      input.type = "number";
+      input.step = "1";
+      input.value = vec[i];
+      input.title = labelPrefix + " " + axis;
+      input.addEventListener("input", () => {
+        vec[i] = parseFloat(input.value) || 0;
+        onChange();
+        refreshAll();
+      });
+      wrap.appendChild(input);
+    });
+    return wrap;
+  }
+
+  function colorField(value, onChange) {
+    const input = document.createElement("input");
+    input.type = "color";
+    input.value = value;
+    input.addEventListener("input", () => {
+      onChange(input.value);
+      refreshAll();
+    });
+    return input;
+  }
+
+  function renderObjList() {
+    const list = document.getElementById("obj-list");
+    list.innerHTML = "";
+    if (state.objects.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "empty-note";
+      empty.textContent = "아직 추가된 도형이 없어요.";
+      list.appendChild(empty);
+      return;
+    }
+    for (const o of state.objects) {
+      const card = document.createElement("div");
+      card.className = "obj-card" + (o.id === state.selectedId ? " selected" : "");
+
+      const head = document.createElement("div");
+      head.className = "obj-card-head";
+      const chip = document.createElement("span");
+      chip.className = "obj-chip " + o.type;
+      chip.textContent = objLabel(o);
+      const rm = document.createElement("button");
+      rm.className = "rm";
+      rm.textContent = "✕";
+      rm.title = "삭제";
+      rm.addEventListener("click", () => {
+        if (state.selectedId === o.id) state.selectedId = null;
+        state.objects = state.objects.filter((x) => x.id !== o.id);
+        renderObjList();
+        refreshAll();
+      });
+      head.append(chip, rm);
+      card.appendChild(head);
+      card.title = "클릭해서 선택 (선택 후 방향키로 이동, Q/E로 높이)";
+      card.addEventListener("click", (e) => {
+        if (e.target === rm || e.target.tagName === "INPUT") return;
+        state.selectedId = state.selectedId === o.id ? null : o.id;
+        renderObjList();
+        refreshAll();
+      });
+
+      const posRow = document.createElement("div");
+      posRow.className = "field-row";
+      const posLabel = document.createElement("label");
+      posLabel.textContent = o.type === "pl" ? "point" : "center";
+      posRow.append(posLabel, vecFields("pos", o.type === "pl" ? o.point : o.center, () => {}));
+      card.appendChild(posRow);
+
+      if (o.type === "sp") {
+        card.appendChild(numField("diameter", o.diameter, (v) => (o.diameter = v)));
+      } else if (o.type === "pl") {
+        const nRow = document.createElement("div");
+        nRow.className = "field-row";
+        const nLabel = document.createElement("label");
+        nLabel.textContent = "normal";
+        nRow.append(nLabel, vecFields("normal", o.normal, () => {}));
+        card.appendChild(nRow);
+      } else if (o.type === "cy") {
+        const aRow = document.createElement("div");
+        aRow.className = "field-row";
+        const aLabel = document.createElement("label");
+        aLabel.textContent = "axis";
+        aRow.append(aLabel, vecFields("axis", o.axis, () => {}));
+        card.appendChild(aRow);
+        card.appendChild(numField("diameter", o.diameter, (v) => (o.diameter = v)));
+        card.appendChild(numField("height", o.height, (v) => (o.height = v)));
+      }
+
+      const colorRow = document.createElement("div");
+      colorRow.className = "field-row";
+      const colorLabel = document.createElement("label");
+      colorLabel.textContent = "color";
+      colorRow.append(colorLabel, colorField(o.color, (v) => (o.color = v)));
+      card.appendChild(colorRow);
+
+      list.appendChild(card);
+    }
+  }
+
+  /* ---------- wiring: ambient / camera / light ---------- */
+
+  function bindRange(id, outId, onInput, fmtFn) {
+    const el = document.getElementById(id);
+    const out = document.getElementById(outId);
+    el.addEventListener("input", () => {
+      const v = parseFloat(el.value);
+      if (out) out.textContent = fmtFn(v);
+      onInput(v);
+      refreshAll();
+    });
+  }
+
+  function bindNumber(id, onInput) {
+    document.getElementById(id).addEventListener("input", (e) => {
+      onInput(parseFloat(e.target.value) || 0);
+      refreshAll();
+    });
+  }
+
+  bindRange("a-ratio", "a-ratio-out", (v) => (state.ambient.ratio = v), (v) => v.toFixed(2));
+  document.getElementById("a-color").addEventListener("input", (e) => {
+    state.ambient.color = e.target.value;
+    refreshAll();
+  });
+
+  bindNumber("c-px", (v) => (state.camera.pos[0] = v));
+  bindNumber("c-py", (v) => (state.camera.pos[1] = v));
+  bindNumber("c-pz", (v) => (state.camera.pos[2] = v));
+  bindRange("c-yaw", "c-yaw-out", (v) => (state.camera.yaw = v), (v) => Math.round(v) + "°");
+  bindRange("c-pitch", "c-pitch-out", (v) => (state.camera.pitch = v), (v) => Math.round(v) + "°");
+  bindRange("c-fov", "c-fov-out", (v) => (state.camera.fov = v), (v) => Math.round(v) + "°");
+
+  bindNumber("l-px", (v) => (state.light.pos[0] = v));
+  bindNumber("l-py", (v) => (state.light.pos[1] = v));
+  bindNumber("l-pz", (v) => (state.light.pos[2] = v));
+  bindRange("l-bright", "l-bright-out", (v) => (state.light.brightness = v), (v) => v.toFixed(2));
+  document.getElementById("l-color").addEventListener("input", (e) => {
+    state.light.color = e.target.value;
+    refreshAll();
+  });
+  document.getElementById("light-select-btn").addEventListener("click", () => {
+    state.selectedId = state.selectedId === "light" ? null : "light";
+    renderObjList();
+    refreshAll();
+  });
+
+  document.querySelectorAll("[data-add]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const type = btn.dataset.add;
+      const base = { id: nextId++, color: "#5fb0e8" };
+      let o;
+      if (type === "sp") o = { ...base, type, center: [0, 0, 20], diameter: 10, color: "#e85f5f" };
+      else if (type === "pl") o = { ...base, type, point: [0, 0, -10], normal: [0, 1, 0], color: "#8fe85f" };
+      else o = { ...base, type, center: [0, 0, 20], axis: [0, 1, 0], diameter: 8, height: 16, color: "#a05fe8" };
+      state.objects.push(o);
+      state.selectedId = o.id;
+      renderObjList();
+      refreshAll();
+    });
+  });
+
+  document.getElementById("copy-btn").addEventListener("click", async () => {
+    const ta = document.getElementById("rt-output");
+    const btn = document.getElementById("copy-btn");
+    const original = btn.textContent;
+    let copied = false;
+    ta.select();
+    try {
+      await navigator.clipboard.writeText(ta.value);
+      copied = true;
+    } catch (e) {
+      /* file:// 등 secure context가 아니면 Clipboard API가 막힘 - 구식 방법으로 재시도 */
+      try {
+        copied = document.execCommand("copy");
+      } catch (e2) {
+        copied = false;
+      }
+    }
+    btn.textContent = copied ? "복사됨" : "복사 실패 (직접 Cmd+C)";
+    setTimeout(() => (btn.textContent = original), 1200);
+  });
+
+  document.getElementById("rt-output").addEventListener("paste", (e) => {
+    const text = (e.clipboardData || window.clipboardData).getData("text");
+    if (importRt(text)) {
+      e.preventDefault();
+      const status = document.getElementById("rt-status");
+      status.textContent = "가져오기 완료";
+      status.className = "";
+      setTimeout(refreshOutput, 800);
+    }
+  });
+
+  /* ---------- control-target label ---------- */
+
+  function updateCtrlTarget() {
+    const el = document.getElementById("ctrl-target");
+    const lightBtn = document.getElementById("light-select-btn");
+    lightBtn.classList.toggle("selected", state.selectedId === "light");
+    if (state.selectedId === "light") {
+      el.textContent = "조작 대상: Light · WASD/방향키: 이동 · Q/E: 높이 · 드래그: 시점 회전 · 다시 클릭: 선택 해제";
+      return;
+    }
+    const o = state.objects.find((x) => x.id === state.selectedId);
+    if (o) {
+      const canRotate = o.type === "pl" || o.type === "cy";
+      el.textContent =
+        `조작 대상: ${objLabel(o)} #${o.id} · WASD/방향키·드래그: 이동 · Q/E: 높이` +
+        (canRotate ? " · Shift+드래그: 회전" : "") +
+        " · 다시 클릭: 선택 해제";
+    } else {
+      el.textContent = "조작 대상: 카메라 · WASD: 이동 · Q/E: 높이 · 드래그: 시점 회전";
+    }
+  }
+
+  /* ---------- camera-relative ground axes ---------- */
+
+  function groundBasis(cam) {
+    const yaw = (cam.yaw * Math.PI) / 180;
+    const fwd = [Math.sin(yaw), 0, Math.cos(yaw)];
+    const right = [-Math.cos(yaw), 0, Math.sin(yaw)];
+    return { fwd, right };
+  }
+
+  function syncCameraSliders() {
+    const yaw = document.getElementById("c-yaw");
+    const yawOut = document.getElementById("c-yaw-out");
+    yaw.value = state.camera.yaw;
+    yawOut.textContent = Math.round(state.camera.yaw) + "°";
+    const pitch = document.getElementById("c-pitch");
+    const pitchOut = document.getElementById("c-pitch-out");
+    pitch.value = state.camera.pitch;
+    pitchOut.textContent = Math.round(state.camera.pitch) + "°";
+  }
+
+  function syncCameraPositionInputs() {
+    document.getElementById("c-px").value = fmt(state.camera.pos[0]);
+    document.getElementById("c-py").value = fmt(state.camera.pos[1]);
+    document.getElementById("c-pz").value = fmt(state.camera.pos[2]);
+  }
+
+  /* ---------- object direction (normal/axis) as yaw/pitch ---------- */
+
+  function vectorToYawPitch(v) {
+    const n = norm(v);
+    return { yaw: Math.atan2(n[0], n[2]), pitch: Math.asin(clamp(n[1], -1, 1)) };
+  }
+
+  function yawPitchToVector(yaw, pitch) {
+    return [Math.cos(pitch) * Math.sin(yaw), Math.sin(pitch), Math.cos(pitch) * Math.cos(yaw)];
+  }
+
+  function rotateObjectDirection(o, dx, dy) {
+    const vec = o.type === "pl" ? o.normal : o.axis;
+    const { yaw, pitch } = vectorToYawPitch(vec);
+    const sens = 0.01;
+    const newYaw = yaw + dx * sens;
+    const newPitch = clamp(pitch - dy * sens, -Math.PI / 2 + 0.01, Math.PI / 2 - 0.01);
+    const nv = yawPitchToVector(newYaw, newPitch);
+    vec[0] = nv[0];
+    vec[1] = nv[1];
+    vec[2] = nv[2];
+  }
+
+  function moveObjectByDrag(o, dx, dy) {
+    const { fwd, right } = groundBasis(state.camera);
+    const scale = 0.15;
+    const p = o.type === "pl" ? o.point : o.center;
+    p[0] += right[0] * dx * scale + fwd[0] * -dy * scale;
+    p[2] += right[2] * dx * scale + fwd[2] * -dy * scale;
+  }
+
+  function syncLightPositionInputs() {
+    document.getElementById("l-px").value = fmt(state.light.pos[0]);
+    document.getElementById("l-py").value = fmt(state.light.pos[1]);
+    document.getElementById("l-pz").value = fmt(state.light.pos[2]);
+  }
+
+  /* ---------- mouse drag: camera orbit / selected-object move & rotate ---------- */
+
+  let dragging = false;
+  let lastX = 0;
+  let lastY = 0;
+  const DRAG_SENSITIVITY = 0.3;
+
+  canvas.addEventListener("pointerdown", (e) => {
+    if (document.activeElement && document.activeElement !== document.body) {
+      document.activeElement.blur();
+    }
+    dragging = true;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    canvas.setPointerCapture(e.pointerId);
+    canvas.classList.add("dragging");
+  });
+
+  canvas.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
+    lastX = e.clientX;
+    lastY = e.clientY;
+
+    const o = state.selectedId === "light" ? null : state.objects.find((x) => x.id === state.selectedId);
+    if (o) {
+      if (e.shiftKey && (o.type === "pl" || o.type === "cy")) rotateObjectDirection(o, dx, dy);
+      else moveObjectByDrag(o, dx, dy);
+      renderObjList();
+    } else {
+      state.camera.yaw = clamp(state.camera.yaw + dx * DRAG_SENSITIVITY, -180, 180);
+      state.camera.pitch = clamp(state.camera.pitch - dy * DRAG_SENSITIVITY, -89, 89);
+      syncCameraSliders();
+    }
+    refreshAll();
+  });
+
+  const stopDrag = () => {
+    dragging = false;
+    canvas.classList.remove("dragging");
+  };
+  canvas.addEventListener("pointerup", stopDrag);
+  canvas.addEventListener("pointercancel", stopDrag);
+  canvas.addEventListener("pointerleave", stopDrag);
+
+  /* ---------- keyboard: move selected object, or fly camera ---------- */
+
+  const MOVE_STEP = 1;
+
+  window.addEventListener("keydown", (e) => {
+    const active = document.activeElement;
+    if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA")) return;
+
+    if (state.selectedId == null) {
+      const { fwd, right } = groundBasis(state.camera);
+      let moved = true;
+      if (e.code === "KeyW") {
+        state.camera.pos[0] += fwd[0] * MOVE_STEP;
+        state.camera.pos[2] += fwd[2] * MOVE_STEP;
+      } else if (e.code === "KeyS") {
+        state.camera.pos[0] -= fwd[0] * MOVE_STEP;
+        state.camera.pos[2] -= fwd[2] * MOVE_STEP;
+      } else if (e.code === "KeyA") {
+        state.camera.pos[0] -= right[0] * MOVE_STEP;
+        state.camera.pos[2] -= right[2] * MOVE_STEP;
+      } else if (e.code === "KeyD") {
+        state.camera.pos[0] += right[0] * MOVE_STEP;
+        state.camera.pos[2] += right[2] * MOVE_STEP;
+      } else if (e.code === "KeyQ") state.camera.pos[1] -= MOVE_STEP;
+      else if (e.code === "KeyE") state.camera.pos[1] += MOVE_STEP;
+      else moved = false;
+      if (moved) {
+        e.preventDefault();
+        syncCameraPositionInputs();
+        refreshAll();
+      }
+      return;
+    }
+
+    if (state.selectedId === "light") {
+      const p = state.light.pos;
+      const { fwd, right } = groundBasis(state.camera);
+      let moved = true;
+      if (e.code === "ArrowLeft" || e.code === "KeyA") {
+        p[0] -= right[0] * MOVE_STEP;
+        p[2] -= right[2] * MOVE_STEP;
+      } else if (e.code === "ArrowRight" || e.code === "KeyD") {
+        p[0] += right[0] * MOVE_STEP;
+        p[2] += right[2] * MOVE_STEP;
+      } else if (e.code === "ArrowUp" || e.code === "KeyW") {
+        p[0] += fwd[0] * MOVE_STEP;
+        p[2] += fwd[2] * MOVE_STEP;
+      } else if (e.code === "ArrowDown" || e.code === "KeyS") {
+        p[0] -= fwd[0] * MOVE_STEP;
+        p[2] -= fwd[2] * MOVE_STEP;
+      } else if (e.code === "KeyQ") p[1] -= MOVE_STEP;
+      else if (e.code === "KeyE") p[1] += MOVE_STEP;
+      else moved = false;
+      if (moved) {
+        e.preventDefault();
+        syncLightPositionInputs();
+        refreshAll();
+      }
+      return;
+    }
+
+    const o = state.objects.find((x) => x.id === state.selectedId);
+    if (!o) return;
+    const p = o.type === "pl" ? o.point : o.center;
+    const { fwd, right } = groundBasis(state.camera);
+    let moved = true;
+    if (e.code === "ArrowLeft" || e.code === "KeyA") {
+      p[0] -= right[0] * MOVE_STEP;
+      p[2] -= right[2] * MOVE_STEP;
+    } else if (e.code === "ArrowRight" || e.code === "KeyD") {
+      p[0] += right[0] * MOVE_STEP;
+      p[2] += right[2] * MOVE_STEP;
+    } else if (e.code === "ArrowUp" || e.code === "KeyW") {
+      p[0] += fwd[0] * MOVE_STEP;
+      p[2] += fwd[2] * MOVE_STEP;
+    } else if (e.code === "ArrowDown" || e.code === "KeyS") {
+      p[0] -= fwd[0] * MOVE_STEP;
+      p[2] -= fwd[2] * MOVE_STEP;
+    } else if (e.code === "KeyQ") p[1] -= MOVE_STEP;
+    else if (e.code === "KeyE") p[1] += MOVE_STEP;
+    else moved = false;
+    if (moved) {
+      e.preventDefault();
+      renderObjList();
+      refreshAll();
+    }
+  });
+
+  window.addEventListener("resize", resizeCanvas);
+  renderObjList();
+  updateCtrlTarget();
+  resizeCanvas();
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(resizeCanvas);
+  }
+</script>
