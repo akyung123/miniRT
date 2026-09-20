@@ -38,7 +38,6 @@ void	free_tokens(char **tokens)
 	free(tokens);
 }
 
-/* 과제 요구: 씬 파일은 .rt 확장자여야 한다. */
 int	has_rt_extension(const char *path)
 {
 	size_t	len;

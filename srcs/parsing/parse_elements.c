@@ -46,10 +46,6 @@ int	parse_camera(char **tokens, t_scene *scene, t_parse_flags *flags)
 	return (1);
 }
 
-/* 서브젝트: L 의 RGB 는 mandatory 에서 쓰이지 않는다.
- * 형식은 그대로 검사해서 잘못된 값(범위 밖/정수 아님)은 거부하되,
- * 실제 조명 색은 흰색으로 고정한다.
- */
 int	parse_light(char **tokens, t_scene *scene, t_parse_flags *flags)
 {
 	t_color	unused;

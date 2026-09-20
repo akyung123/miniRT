@@ -25,10 +25,10 @@
 #  define CLOSE_MASK 131072
 # endif
 
-int	init_mlx(t_minirt *rt);
-int	close_hook(void *param);
-int	key_hook(int keycode, void *param);
-int	expose_hook(void *param);
+int		init_mlx(t_minirt *rt);
+int		close_hook(void *param);
+int		key_hook(int keycode, void *param);
+int		expose_hook(void *param);
 void	run_mlx(t_minirt *rt);
 void	cleanup_mlx(t_minirt *rt);
 

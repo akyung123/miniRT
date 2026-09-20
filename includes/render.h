@@ -73,7 +73,7 @@ t_color	apply_ambient(t_color obj, t_color amb, double ratio);
 t_color	lighting(t_scene *scene, t_hit *rec);
 int		in_shadow(t_scene *scene, t_vec3 p);
 t_color	render_pixel(t_scene *scene, int x, int y);
-void		render_all(t_minirt *rt);
+void	render_all(t_minirt *rt);
 int		color_to_int(t_color color);
 
 #endif

@@ -14,9 +14,6 @@
 #include "mlx.h"
 #include "window.h"
 
-/* macOS mlx 에는 mlx_destroy_display 가 없다. 리눅스에서는 이걸 안
- * 부르면 X 연결이 그대로 남아 valgrind 가 누수로 잡는다.
- */
 #ifndef __APPLE__
 
 static void	destroy_display(void *mlx_ptr)
