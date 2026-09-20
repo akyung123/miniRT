@@ -515,7 +515,7 @@
         <span id="rt-status"></span>
         <button class="primary" id="copy-btn">복사</button>
       </div>
-      <textarea id="rt-output" readonly spellcheck="false"></textarea>
+      <textarea id="rt-output" spellcheck="false" title="완성된 .rt 텍스트를 여기 붙여넣으면 씬 전체를 가져와요"></textarea>
     </div>
   </div>
 </main>
@@ -603,6 +603,11 @@
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   }
 
+  function rgbToHex([r, g, b]) {
+    const c = (v) => clamp(Math.round(v), 0, 255).toString(16).padStart(2, "0");
+    return "#" + c(r) + c(g) + c(b);
+  }
+
   const fmt = (n) => {
     const r = Math.round(n * 1000) / 1000;
     return Object.is(r, -0) ? "0" : String(r);
@@ -642,6 +647,112 @@
       }
     }
     return lines.join("\n") + "\n";
+  }
+
+  /* ---------- .rt import (paste a full .rt back into the tool) ---------- */
+
+  function directionToYawPitch(d) {
+    const n = norm(d);
+    const pitch = (Math.asin(clamp(n[1], -1, 1)) * 180) / Math.PI;
+    const cospitch = Math.cos((pitch * Math.PI) / 180);
+    let yaw = 0;
+    if (Math.abs(cospitch) > 1e-6) {
+      yaw = (Math.atan2(n[0] / cospitch, n[2] / cospitch) * 180) / Math.PI;
+    }
+    return { yaw, pitch };
+  }
+
+  function parseVec(str) {
+    const parts = (str || "").split(",").map(Number);
+    if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
+    return parts;
+  }
+
+  function parseRgbHex(str) {
+    const v = parseVec(str);
+    return v ? rgbToHex(v) : null;
+  }
+
+  function parseRt(text) {
+    const result = { ambient: null, camera: null, light: null, objects: [] };
+    let id = 1;
+    for (const raw of text.split("\n")) {
+      const line = raw.trim();
+      if (!line) continue;
+      const tok = line.split(/\s+/);
+      if (tok[0] === "A" && tok.length >= 3) {
+        const ratio = Number(tok[1]);
+        const color = parseRgbHex(tok[2]);
+        if (!Number.isNaN(ratio) && color) result.ambient = { ratio, color };
+      } else if (tok[0] === "C" && tok.length >= 4) {
+        const pos = parseVec(tok[1]);
+        const dir = parseVec(tok[2]);
+        const fov = Number(tok[3]);
+        if (pos && dir && !Number.isNaN(fov)) {
+          const { yaw, pitch } = directionToYawPitch(dir);
+          result.camera = { pos, yaw, pitch, fov };
+        }
+      } else if (tok[0] === "L" && tok.length >= 4) {
+        const pos = parseVec(tok[1]);
+        const brightness = Number(tok[2]);
+        const color = parseRgbHex(tok[3]);
+        if (pos && !Number.isNaN(brightness) && color) result.light = { pos, brightness, color };
+      } else if (tok[0] === "sp" && tok.length >= 4) {
+        const center = parseVec(tok[1]);
+        const diameter = Number(tok[2]);
+        const color = parseRgbHex(tok[3]);
+        if (center && !Number.isNaN(diameter) && color) {
+          result.objects.push({ id: id++, type: "sp", center, diameter, color });
+        }
+      } else if (tok[0] === "pl" && tok.length >= 4) {
+        const point = parseVec(tok[1]);
+        const normal = parseVec(tok[2]);
+        const color = parseRgbHex(tok[3]);
+        if (point && normal && color) {
+          result.objects.push({ id: id++, type: "pl", point, normal, color });
+        }
+      } else if (tok[0] === "cy" && tok.length >= 6) {
+        const center = parseVec(tok[1]);
+        const axis = parseVec(tok[2]);
+        const diameter = Number(tok[3]);
+        const height = Number(tok[4]);
+        const color = parseRgbHex(tok[5]);
+        if (center && axis && !Number.isNaN(diameter) && !Number.isNaN(height) && color) {
+          result.objects.push({ id: id++, type: "cy", center, axis, diameter, height, color });
+        }
+      }
+    }
+    return result;
+  }
+
+  function syncAllInputs() {
+    document.getElementById("a-ratio").value = state.ambient.ratio;
+    document.getElementById("a-ratio-out").textContent = state.ambient.ratio.toFixed(2);
+    document.getElementById("a-color").value = state.ambient.color;
+    syncCameraPositionInputs();
+    syncCameraSliders();
+    document.getElementById("c-fov").value = state.camera.fov;
+    document.getElementById("c-fov-out").textContent = Math.round(state.camera.fov) + "°";
+    syncLightPositionInputs();
+    document.getElementById("l-bright").value = state.light.brightness;
+    document.getElementById("l-bright-out").textContent = state.light.brightness.toFixed(2);
+    document.getElementById("l-color").value = state.light.color;
+  }
+
+  function importRt(text) {
+    const parsed = parseRt(text);
+    const gotSomething = parsed.ambient || parsed.camera || parsed.light || parsed.objects.length;
+    if (!gotSomething) return false;
+    if (parsed.ambient) state.ambient = parsed.ambient;
+    if (parsed.camera) state.camera = parsed.camera;
+    if (parsed.light) state.light = parsed.light;
+    if (parsed.objects.length) state.objects = parsed.objects;
+    nextId = state.objects.length + 1;
+    state.selectedId = null;
+    syncAllInputs();
+    renderObjList();
+    refreshAll();
+    return true;
   }
 
   function validate() {
@@ -1073,6 +1184,17 @@
     }
     btn.textContent = copied ? "복사됨" : "복사 실패 (직접 Cmd+C)";
     setTimeout(() => (btn.textContent = original), 1200);
+  });
+
+  document.getElementById("rt-output").addEventListener("paste", (e) => {
+    const text = (e.clipboardData || window.clipboardData).getData("text");
+    if (importRt(text)) {
+      e.preventDefault();
+      const status = document.getElementById("rt-status");
+      status.textContent = "가져오기 완료";
+      status.className = "";
+      setTimeout(refreshOutput, 800);
+    }
   });
 
   /* ---------- control-target label ---------- */
