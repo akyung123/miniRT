@@ -24,6 +24,7 @@
 t_color	render_pixel(t_scene *scene, int x, int y);
 
 int		init_mlx(t_minirt *rt);
+void	run_mlx(t_minirt *rt);
 void	render_all(t_minirt *rt);
 int		color_to_int(t_color color);
 int		close_hook(void *param);

@@ -31,3 +31,11 @@ int	init_mlx(t_minirt *rt)
 		return (ft_error("mlx_get_data_addr failed"), 0);
 	return (1);
 }
+
+void	run_mlx(t_minirt *rt)
+{
+	mlx_hook(rt->mlx.win_ptr, 17, 0, close_hook, rt);
+	mlx_key_hook(rt->mlx.win_ptr, key_hook, rt);
+	mlx_expose_hook(rt->mlx.win_ptr, expose_hook, rt);
+	mlx_loop(rt->mlx.mlx_ptr);
+}
