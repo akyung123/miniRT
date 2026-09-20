@@ -13,7 +13,8 @@
 #include <stdlib.h>
 #include "mlx.h"
 #include "miniRT.h"
-#include "output.h"
+#include "window.h"
+#include "render.h"
 
 static int	has_rt_extension(const char *path)
 {
@@ -61,10 +62,6 @@ int	main(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 	render_all(&minirt);
-	mlx_hook(minirt.mlx.win_ptr, DESTROY_NOTIFY, CLOSE_MASK, close_hook,
-		&minirt);
-	mlx_key_hook(minirt.mlx.win_ptr, key_hook, &minirt);
-	mlx_expose_hook(minirt.mlx.win_ptr, expose_hook, &minirt);
-	mlx_loop(minirt.mlx.mlx_ptr);
+	run_mlx(&minirt);
 	return (EXIT_SUCCESS);
 }

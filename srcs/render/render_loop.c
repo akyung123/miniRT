@@ -11,7 +11,8 @@
 /* ************************************************************************** */
 
 #include "mlx.h"
-#include "output.h"
+#include "render.h"
+#include "window.h"
 
 static void	put_pixel(t_mlx *mlx, int x, int y, int color)
 {

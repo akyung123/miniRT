@@ -11,10 +11,11 @@ SRCS = srcs/main.c \
 	srcs/parsing/parse_scene.c \
 	srcs/parsing/parse_utils.c \
 	srcs/parsing/str_to_double.c \
-	srcs/output/cleanup.c \
-	srcs/output/hooks.c \
-	srcs/output/mlx_init.c \
-	srcs/output/render_loop.c \
+	srcs/window/cleanup.c \
+	srcs/window/hooks.c \
+	srcs/window/mlx_init.c \
+	srcs/window/mlx_event.c \
+	srcs/render/render_loop.c \
 	srcs/vec3_math.c \
 	srcs/vec3_ops.c \
 	srcs/render/ray.c \

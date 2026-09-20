@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "mlx.h"
-#include "output.h"
+#include "window.h"
 
 int	init_mlx(t_minirt *rt)
 {

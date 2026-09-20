@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   hooks.c                                            :+:      :+:    :+:   */
+/*   cleanup.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: seoykim <seoykim@student.42gyeongsan.kr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,32 +12,38 @@
 
 #include <stdlib.h>
 #include "mlx.h"
-#include "output.h"
+#include "window.h"
 
-int	close_hook(void *param)
+/* macOS mlx 에는 mlx_destroy_display 가 없다. 리눅스에서는 이걸 안
+ * 부르면 X 연결이 그대로 남아 valgrind 가 누수로 잡는다.
+ */
+#ifndef __APPLE__
+
+static void	destroy_display(void *mlx_ptr)
 {
-	t_minirt	*rt;
-
-	rt = (t_minirt *)param;
-	cleanup_mlx(rt);
-	free_scene(&rt->scene);
-	exit(EXIT_SUCCESS);
-	return (0);
+	mlx_destroy_display(mlx_ptr);
+	free(mlx_ptr);
 }
 
-int	key_hook(int keycode, void *param)
+#else
+
+static void	destroy_display(void *mlx_ptr)
 {
-	if (keycode == KEY_ESC)
-		return (close_hook(param));
-	return (0);
+	(void)mlx_ptr;
 }
 
-int	expose_hook(void *param)
-{
-	t_minirt	*rt;
+#endif
 
-	rt = (t_minirt *)param;
-	mlx_put_image_to_window(rt->mlx.mlx_ptr, rt->mlx.win_ptr,
-		rt->mlx.img_ptr, 0, 0);
-	return (0);
+void	cleanup_mlx(t_minirt *rt)
+{
+	if (!rt->mlx.mlx_ptr)
+		return ;
+	if (rt->mlx.img_ptr)
+		mlx_destroy_image(rt->mlx.mlx_ptr, rt->mlx.img_ptr);
+	if (rt->mlx.win_ptr)
+		mlx_destroy_window(rt->mlx.mlx_ptr, rt->mlx.win_ptr);
+	rt->mlx.img_ptr = NULL;
+	rt->mlx.win_ptr = NULL;
+	destroy_display(rt->mlx.mlx_ptr);
+	rt->mlx.mlx_ptr = NULL;
 }
