@@ -1,8 +1,7 @@
 /* 이미지 버퍼 캐싱(render_all) vs mlx_pixel_put 매 픽셀 호출(render_naive)
  * 사이의 렌더링 표시 속도를 비교하는 데모. 제출 대상 아님.
- * render_pixel은 tests/render_pixel_stub.c의 그라디언트 스텁 사용 -
- * 계산량은 두 방식이 동일하니, 시간 차이는 순수하게 "픽셀 표시 방식"
- * 차이만 반영함.
+ * 실제 render_pixel(srcs/render/)로 링크됨 - 두 방식 다 진짜 렌더링
+ * 결과를 계산하므로, 시간 차이는 "픽셀 표시 방식" 차이만 반영함.
  *
  * 빌드+실행: srcs/output 에서 `make perf`
  */
