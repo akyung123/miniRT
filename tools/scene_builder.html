@@ -449,10 +449,7 @@
     </section>
 
     <section class="group">
-      <div class="group-title-row">
-        <div class="group-title">Camera</div>
-        <button id="camera-reset-btn" class="light-select" title="카메라를 기본 위치/각도로 되돌리기">리셋</button>
-      </div>
+      <div class="group-title">Camera</div>
       <div class="field-row"><label>pos x</label><input id="c-px" type="number" step="1" value="0" /></div>
       <div class="field-row"><label>pos y</label><input id="c-py" type="number" step="1" value="8" /></div>
       <div class="field-row"><label>pos z</label><input id="c-pz" type="number" step="1" value="-60" /></div>
@@ -1150,11 +1147,6 @@
   document.getElementById("light-select-btn").addEventListener("click", () => {
     state.selectedId = state.selectedId === "light" ? null : "light";
     renderObjList();
-    refreshAll();
-  });
-  document.getElementById("camera-reset-btn").addEventListener("click", () => {
-    state.camera = { pos: [0, 8, -60], yaw: 0, pitch: 0, fov: 70 };
-    syncAllInputs();
     refreshAll();
   });
 
